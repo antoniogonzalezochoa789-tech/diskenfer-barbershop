@@ -823,6 +823,17 @@
         <span class="section-title" style="font-size: 14px; color: #FFF;">CONTROL DE COBROS</span>
         <button class="btn-sm btn-sm-red" onclick="openModalDeudor()" style="padding: 6px 12px; font-size: 11px;">➕ Anotar Deudor</button>
       </div>
+
+      <!-- Acciones de Respaldo y Reporte de Deudores -->
+      <div style="display: flex; gap: 8px; margin: 2px 0 4px 0;">
+        <button class="btn-sm" onclick="compartirDeudoresWhatsApp()" style="flex: 1; background: #18331E; border: 1.5px solid #2ECC71; color: #2ECC71; font-weight: bold; padding: 7px 8px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          📲 Enviar por WhatsApp
+        </button>
+        <button class="btn-sm" onclick="descargarDeudoresTxt()" style="flex: 1; background: #20190D; border: 1.5px solid var(--gold); color: var(--gold); font-weight: bold; padding: 7px 8px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          📄 Guardar en TXT
+        </button>
+      </div>
+
       <div class="service-chips">
         <div class="chip-btn selected" id="subtab-pendientes-btn" onclick="switchDeudoresSubtab('pendientes')">🚨 Por Cobrar (<span id="count-pendientes">0</span>)</div>
         <div class="chip-btn" id="subtab-cobrados-btn" onclick="switchDeudoresSubtab('cobrados')">✅ Cobrados (<span id="count-cobrados">0</span>)</div>
@@ -1914,6 +1925,65 @@
       renderAjustes(db);
       showToast(`✅ Precios actualizados: Corte $${formatPrecio(c)} | C+B $${formatPrecio(cb)} | Barba $${formatPrecio(b)}`, 'green');
       renderApp();
+    }
+
+    // Reporte y Respaldo de Deudores
+    function generarTextoDeudores() {
+      const db = getDB();
+      const tasa = db.config.tasa || 45.0;
+      const pendientes = db.cortes.filter(c => c.estado_pago === 'PENDIENTE');
+      const totalUSD = pendientes.reduce((acc, c) => acc + Number(c.precio), 0);
+      const totalBs = totalUSD * tasa;
+      const hoy = getHoyStr();
+      const hora = getHoraFmt();
+
+      let txt = `==================================================================\n`;
+      txt += `          DISKENFER BARBERSHOP - CONTROL DE DEUDAS            \n`;
+      txt += `==================================================================\n`;
+      txt += `Última actualización: ${hoy} - ${hora}\n`;
+      txt += `Tasa activa: Bs. ${tasa.toFixed(2)} por 1 USD\n`;
+      txt += `Total clientes que deben: ${pendientes.length}\n`;
+      txt += `Total dinero por cobrar: $${totalUSD.toFixed(2)} USD  (Bs. ${totalBs.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})})\n`;
+      txt += `------------------------------------------------------------------\n\n`;
+
+      if (pendientes.length === 0) {
+        txt += `¡EXCELENTE! No hay cuentas pendientes por cobrar al día de hoy.\n`;
+        txt += `Todos los clientes están al día con sus pagos.\n`;
+      } else {
+        txt += `LISTA DETALLADA DE CLIENTES QUE DEBEN:\n`;
+        txt += `------------------------------------------------------------------\n`;
+        pendientes.forEach((d, idx) => {
+          const bs = (Number(d.precio) * tasa).toFixed(2);
+          txt += `${idx + 1}. CLIENTE: ${d.cliente}\n`;
+          txt += `   • Servicio: ${d.servicio || 'Corte'}\n`;
+          txt += `   • Monto que debe: $${Number(d.precio).toFixed(2)} USD  (Bs. ${bs})\n`;
+          txt += `   • Registrado el: ${d.fecha} ${d.hora || ''}\n`;
+          if (d.notas) txt += `   • Nota / Teléfono: ${d.notas}\n`;
+          txt += `\n`;
+        });
+      }
+      txt += `==================================================================\n`;
+      txt += `Diskenfer Barbershop • Archivo de Respaldo de Deudores\n`;
+      txt += `==================================================================\n`;
+      return txt;
+    }
+
+    function descargarDeudoresTxt() {
+      const txt = generarTextoDeudores();
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Diskenfer_Deudores_${getHoyStr()}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📄 Archivo TXT descargado', 'gold');
+    }
+
+    function compartirDeudoresWhatsApp() {
+      const txt = generarTextoDeudores();
+      const encoded = encodeURIComponent(txt);
+      window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
     }
 
     // Backup
