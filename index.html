@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Diskenfer Barbershop</title>
+
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Diskenfer">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F5D77F;
+      --gold-dark: #251E10;
+      --gold-border: #8C6D28;
+      --bg: #0A0A0A;
+      --card: #141414;
+      --card-alt: #191919;
+      --green: #2ECC71;
+      --red: #E74C3C;
+      --red-dark: #2B1212;
+      --text: #FFFFFF;
+      --text-muted: #888888;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 440px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background-color: var(--bg);
+      padding-bottom: 75px;
+    }
+
+    /* Marca de agua sutil */
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 130px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      object-fit: contain;
+    }
+
+    /* Cabecera */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #141414;
+      border: 1.5px solid var(--gold-border);
+      border-radius: 14px;
+      margin: 8px 10px;
+      z-index: 1;
+    }
+
+    .header-logo {
+      width: 42px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gold);
+      object-fit: cover;
+      background: #1E190E;
+    }
+
+    .header-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .header-sub {
+      font-size: 9px;
+      font-weight: 600;
+      color: #FFF;
+      letter-spacing: 2px;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .header-tasa {
+      background: #1A160E;
+      border: 1px solid var(--gold-border);
+      padding: 4px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: right;
+    }
+
+    .header-tasa-lbl {
+      font-size: 8px;
+      color: var(--gold-light);
+      font-weight: bold;
+    }
+
+    .header-tasa-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--gold);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    /* Vistas / Contenido */
+    .view-content {
+      flex: 1;
+      padding: 0 10px 15px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1;
+    }
+
+    /* Tarjetas */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--gold-border);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-master {
+      background: #17140D;
+      border-color: var(--gold);
+      box-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
+    }
+
+    .master-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .master-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .master-base {
+      font-size: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .master-amounts {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .amount-usd {
+      font-size: 26px;
+      font-weight: 900;
+      color: #FFF;
+    }
+
+    .amount-bs {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--gold-border);
+      opacity: 0.5;
+      margin: 2px 0;
+    }
+
+    .capsules-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .capsule {
+      flex: 1;
+      background: #1C1A14;
+      border: 1px solid var(--gold-border);
+      border-radius: 8px;
+      padding: 6px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .capsule-gastos {
+      background: #221414;
+      border-color: #8A2A2A;
+    }
+
+    .capsule-deudas {
+      background: var(--red-dark);
+      border-color: var(--red);
+    }
+
+    .capsule-deudas.al-dia {
+      background: #142416;
+      border-color: var(--green);
+    }
+
+    .cap-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    .cap-val {
+      font-size: 11px;
+      font-weight: bold;
+      color: #FFF;
+    }
+
+    /* Botonera de Acción Principal */
+    .btn-main-corte {
+      background: var(--gold);
+      color: #000;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      border: 1.5px solid var(--gold-light);
+      border-radius: 12px;
+      padding: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action-gasto {
+      flex: 1;
+      background: #7A1D1D;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: bold;
+      border: 1px solid var(--red);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .btn-action-deudor {
+      flex: 1;
+      background: #5C1414;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: bold;
+      border: 1.5px solid var(--red);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    /* Barra de Jornada Fina */
+    .bar-jornada {
+      background: #19150B;
+      border: 1.2px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .bar-jornada.activa {
+      background: #111B13;
+      border-color: var(--green);
+    }
+
+    .bar-jornada.cerrada {
+      background: #16140D;
+      border-color: var(--gold-border);
+    }
+
+    .jornada-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .jornada-status {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--gold-light);
+    }
+
+    .bar-jornada.activa .jornada-status {
+      color: var(--green);
+    }
+
+    .jornada-sub {
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    .jornada-btns {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-sm {
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-sm-green { background: var(--green); color: #FFF; }
+    .btn-sm-red { background: var(--red); color: #FFF; }
+    .btn-sm-gold { background: var(--gold); color: #000; }
+    .btn-sm-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+
+    /* Alarma Banner */
+    .banner-alarma {
+      background: var(--red-dark);
+      border: 1.5px solid var(--red);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .banner-alarma-text {
+      flex: 1;
+    }
+
+    .banner-alarma-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--red);
+    }
+
+    .banner-alarma-sub {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Listas de elementos */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .section-badge {
+      font-size: 10px;
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .item-row {
+      background: #181818;
+      border: 1.2px solid var(--gold-border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .item-row.debe {
+      border-color: var(--red);
+      background: #1E1212;
+    }
+
+    .item-details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #FFF;
+    }
+
+    .item-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .item-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .item-price {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--gold);
+    }
+
+    .item-row.debe .item-price {
+      color: var(--red);
+    }
+
+    .badge-status {
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+
+    .badge-pagado { background: var(--green); color: #000; }
+    .badge-debe { background: var(--red); color: #FFF; }
+
+    /* Barra Inferior de Navegación */
+    .navbar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      background: #0C0C0C;
+      border-top: 1.5px solid var(--gold-border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .nav-item.active {
+      color: var(--gold);
+    }
+
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    /* Modales */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 15px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #151515;
+      border: 1.5px solid var(--gold-border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 320px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #FFF;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-lbl {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--text-muted);
+    }
+
+    .input-txt {
+      background: #1C1C1C;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px;
+      color: #FFF;
+      font-size: 14px;
+      outline: none;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+
+    .input-txt:focus {
+      border-color: var(--gold);
+    }
+
+    .service-chips {
+      display: flex;
+      gap: 4px;
+    }
+
+    .chip-btn {
+      flex: 1;
+      padding: 7px 4px;
+      border-radius: 8px;
+      background: #202020;
+      border: 1px solid #444;
+      color: #FFF;
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .chip-btn.selected {
+      background: var(--gold);
+      color: #000;
+      border-color: var(--gold-light);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .btn-confirm {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .btn-confirm-red {
+      background: var(--red);
+      color: #FFF;
+    }
+
+    /* Notificación Toast */
+    #toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--gold);
+      color: #000;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      z-index: 300;
+      transition: transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.toast-red { background: var(--red); color: #FFF; }
+    #toast.toast-green { background: var(--green); color: #FFF; }
+  </style>
+</head>
+<body>
+  <div id="toast">Notificación</div>
+  <img src="logo.jpg" alt="Watermark" class="watermark">
+
+  <div id="app-container">
+    <!-- Cabecera -->
+    <header class="header">
+      <img src="logo.jpg" alt="Logo" class="header-logo">
+      <div class="header-titles">
+        <span class="header-title">DISKENFER</span>
+        <span class="header-sub">BARBERSHOP</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-tasa" onclick="openModalTasa()">
+        <div class="header-tasa-lbl">TASA HOY</div>
+        <div class="header-tasa-val" id="top-tasa-display">Bs. 45.00</div>
+      </div>
+      <button class="btn-icon" onclick="bloquearApp()" title="Bloquear App">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </button>
+    </header>
+
+    <!-- Vista 0: Inicio -->
+    <main id="view-inicio" class="view-content">
+      <!-- Tarjeta Maestra de Caja -->
+      <div class="card card-master">
+        <div class="master-row-top">
+          <span class="master-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            DINERO EN CAJA HOY
+          </span>
+          <span class="master-base" onclick="openModalBase()">Base: <b id="lbl-base-ini">$0.00</b> ✏️</span>
+        </div>
+        <div class="master-amounts">
+          <span class="amount-usd" id="lbl-total-mano">$0.00</span>
+          <span class="amount-bs" id="lbl-total-bs">Bs. 0.00</span>
+        </div>
+        <div class="divider"></div>
+        <div class="capsules-row">
+          <div class="capsule" onclick="switchTab(1)">
+            <div class="cap-lbl">✂️ Cortes</div>
+            <div class="cap-val" id="cap-cortes">0 ($0)</div>
+          </div>
+          <div class="capsule capsule-gastos" onclick="switchTab(3)">
+            <div class="cap-lbl">💸 Gastos</div>
+            <div class="cap-val" id="cap-gastos">-$0.00</div>
+          </div>
+          <div class="capsule capsule-deudas al-dia" id="cap-deudas-box" onclick="switchTab(2)">
+            <div class="cap-lbl">🔴 Deudas</div>
+            <div class="cap-val" id="cap-deudas">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botonera de 3 Acciones Claras -->
+      <button class="btn-main-corte" onclick="openModalCorte()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.89-2 2-2 2 .89 2 2-.89 2-2 2zm0 12c-1.1 0-2-.89-2-2s.89-2 2-2 2 .89 2 2-.89 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3h-3z"/></svg>
+        + REGISTRAR CORTE
+      </button>
+
+      <div class="actions-row">
+        <button class="btn-action-gasto" onclick="openModalGasto()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg>
+          - Registrar Gasto
+        </button>
+        <button class="btn-action-deudor" onclick="openModalDeudor()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          🔴 Anotar Deudor
+        </button>
+      </div>
+
+      <!-- Barra de Turno / Jornada -->
+      <div class="bar-jornada" id="bar-jornada">
+        <div class="jornada-info">
+          <span class="jornada-status" id="jornada-status-txt">Turno: No iniciado</span>
+          <span class="jornada-sub" id="jornada-sub-txt">Abre tu jornada para contar horas</span>
+        </div>
+        <div class="jornada-btns" id="jornada-btns-container">
+          <button class="btn-sm btn-sm-green" onclick="iniciarTurno()">🟢 Iniciar</button>
+          <button class="btn-sm btn-sm-outline" onclick="openModalLibro()">📅 Libro</button>
+        </div>
+      </div>
+
+      <!-- Alarma de Deudas (si existen) -->
+      <div class="banner-alarma" id="banner-alarma" style="display: none;" onclick="switchTab(2)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--red)"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <div class="banner-alarma-text">
+          <div class="banner-alarma-title" id="banner-alarma-title">🚨 ALARMA: CLIENTES CON DEUDA</div>
+          <div class="banner-alarma-sub" id="banner-alarma-sub">Toca para gestionar cobros</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--red)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+
+      <!-- Últimos Cortes de Hoy -->
+      <div class="section-header">
+        <span class="section-title">ÚLTIMOS CLIENTES DE HOY</span>
+        <span class="section-badge" id="lbl-total-cortes-count">Total: 0</span>
+      </div>
+      <div id="lista-ultimos-cortes" style="display: flex; flex-direction: column; gap: 6px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </main>
+
+    <!-- Vista 1: Cortes (Historial) -->
+    <main id="view-cortes" class="view-content" style="display: none;">
+      <div class="section-header">
+        <span class="section-title">HISTORIAL DE CORTES DE HOY</span>
+        <button class="btn-sm btn-sm-gold" onclick="openModalCorte()">+ Registrar</button>
+      </div>
+      <div id="historial-cortes-lista" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </main>
+
+    <!-- Vista 2: Cobrar (Deudores) -->
+    <main id="view-cobrar" class="view-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="section-title" style="font-size: 14px; color: #FFF;">CONTROL DE COBROS</span>
+        <button class="btn-sm btn-sm-red" onclick="openModalDeudor()" style="padding: 6px 12px; font-size: 11px;">➕ Anotar Deudor</button>
+      </div>
+      <div class="service-chips">
+        <div class="chip-btn selected" id="subtab-pendientes-btn" onclick="switchDeudoresSubtab('pendientes')">🚨 Por Cobrar (<span id="count-pendientes">0</span>)</div>
+        <div class="chip-btn" id="subtab-cobrados-btn" onclick="switchDeudoresSubtab('cobrados')">✅ Cobrados (<span id="count-cobrados">0</span>)</div>
+      </div>
+      <div id="lista-deudores-container" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </main>
+
+    <!-- Vista 3: Finanzas -->
+    <main id="view-finanzas" class="view-content" style="display: none;">
+      <span class="section-title" style="font-size: 14px; color: #FFF;">FINANZAS DIARIAS</span>
+      <div class="service-chips">
+        <div class="chip-btn selected" id="fin-tab-ingresos" onclick="switchFinanzasTab('ingresos')">💵 Ingresos</div>
+        <div class="chip-btn" id="fin-tab-gastos" onclick="switchFinanzasTab('gastos')">💸 Gastos</div>
+        <div class="chip-btn" id="fin-tab-resumen" onclick="switchFinanzasTab('resumen')">📊 Resumen</div>
+      </div>
+      <div id="finanzas-contenido" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+    </main>
+
+    <!-- Vista 4: Ajustes -->
+    <main id="view-ajustes" class="view-content" style="display: none;">
+      <span class="section-title" style="font-size: 14px; color: #FFF;">CONFIGURACIÓN Y AJUSTES</span>
+      
+      <div class="card">
+        <span style="font-weight: bold; color: var(--gold); font-size: 13px;">💱 Tasa del Dólar (Bs.)</span>
+        <div class="input-group">
+          <input type="text" inputmode="decimal" id="txt-cfg-tasa" class="input-txt" placeholder="Ej: 45.00">
+        </div>
+        <button class="btn-confirm" onclick="guardarAjusteTasa()">Guardar Tasa</button>
+      </div>
+
+      <div class="card">
+        <span style="font-weight: bold; color: var(--gold); font-size: 13px;">✂️ Precios de Servicios ($ USD)</span>
+        <div class="input-group">
+          <span class="input-lbl">Corte Normal ($):</span>
+          <input type="text" inputmode="decimal" id="txt-cfg-p-corte" class="input-txt" placeholder="Ej: 5.00">
+        </div>
+        <div class="input-group">
+          <span class="input-lbl">Corte y Barba ($):</span>
+          <input type="text" inputmode="decimal" id="txt-cfg-p-cb" class="input-txt" placeholder="Ej: 8.00">
+        </div>
+        <div class="input-group">
+          <span class="input-lbl">Solo Barba ($):</span>
+          <input type="text" inputmode="decimal" id="txt-cfg-p-barba" class="input-txt" placeholder="Ej: 3.00">
+        </div>
+        <button class="btn-confirm" onclick="guardarAjustePrecios()">Guardar Precios</button>
+      </div>
+
+      <div class="card">
+        <span style="font-weight: bold; color: var(--gold); font-size: 13px;">💾 Copia de Seguridad (Backup)</span>
+        <span style="font-size: 11px; color: var(--text-muted);">Tus datos se guardan 100% en este teléfono sin necesidad de internet. Puedes descargar una copia de respaldo cuando quieras:</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-confirm" style="flex: 1;" onclick="exportarBackup()">📤 Exportar Datos</button>
+          <label class="btn-confirm" style="flex: 1; text-align: center; cursor: pointer; background: #333; color: #FFF;">
+            📥 Restaurar
+            <input type="file" id="file-restore" style="display: none;" onchange="importarBackup(event)" accept=".json">
+          </label>
+        </div>
+      </div>
+    </main>
+
+    <!-- Barra de Navegación Inferior -->
+    <nav class="navbar">
+      <div class="nav-item active" onclick="switchTab(0)">
+        <span class="nav-icon">🏠</span>
+        <span>Inicio</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(1)">
+        <span class="nav-icon">✂️</span>
+        <span>Cortes</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(2)">
+        <span class="nav-icon">👥</span>
+        <span>Cobrar</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(3)">
+        <span class="nav-icon">💳</span>
+        <span>Finanzas</span>
+      </div>
+      <div class="nav-item" onclick="switchTab(4)">
+        <span class="nav-icon">⚙️</span>
+        <span>Ajustes</span>
+      </div>
+    </nav>
+  </div>
+
+  <!-- MODAL 1: REGISTRAR CORTE -->
+  <div class="modal-backdrop" id="modal-corte">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">✂️</span>
+        <span>Registrar Atención</span>
+      </div>
+      <div class="input-group">
+        <div style="display: flex; justify-content: space-between;">
+          <span class="input-lbl">Nombre del Cliente:</span>
+          <span class="input-lbl" style="color: var(--gold); cursor: pointer;" onclick="document.getElementById('corte-cliente').value='Cliente Casual'">Cliente Casual</span>
+        </div>
+        <input type="text" id="corte-cliente" class="input-txt" placeholder="Ej: Carlos / El Catire">
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Servicio:</span>
+        <div class="service-chips">
+          <div class="chip-btn selected" id="corte-serv-1" onclick="selectServicioCorte('Corte')">✂️ Corte</div>
+          <div class="chip-btn" id="corte-serv-2" onclick="selectServicioCorte('Corte y Barba')">💈 C+B</div>
+          <div class="chip-btn" id="corte-serv-3" onclick="selectServicioCorte('Solo Barba')">🧔 Barba</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Monto ($ USD):</span>
+        <input type="text" inputmode="decimal" id="corte-monto" class="input-txt" value="5.00">
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">¿Pagó o Debe?:</span>
+        <div class="service-chips">
+          <div class="chip-btn selected" id="corte-pago-pagado" onclick="setEstadoPagoCorte('PAGADO')">🟢 Ya Pagó</div>
+          <div class="chip-btn" id="corte-pago-debe" onclick="setEstadoPagoCorte('PENDIENTE')">🔴 Por Cobrar (Debe)</div>
+        </div>
+      </div>
+      <div class="input-group" id="corte-metodo-box">
+        <span class="input-lbl">Método de Pago:</span>
+        <select id="corte-metodo" class="input-txt">
+          <option value="Dólares Efectivo ($)">💵 Dólares Efectivo ($)</option>
+          <option value="Pago Móvil (Bs.)">📲 Pago Móvil (Bs.)</option>
+          <option value="Bolívares Efectivo (Bs.)">🇻🇪 Bolívares Efectivo (Bs.)</option>
+          <option value="Punto de Venta">💳 Punto de Venta</option>
+          <option value="Zelle / Binance">🌐 Zelle / Binance</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-corte')">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarGuardarCorte()">⚡ Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ANOTAR DEUDOR (DEDICADO Y RÁPIDO) -->
+  <div class="modal-backdrop" id="modal-deudor">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--red);">🔴</span>
+        <span>Anotar Cliente que Debe</span>
+      </div>
+      <div style="background: var(--red-dark); border: 1px solid var(--red); padding: 6px 8px; border-radius: 6px; font-size: 10px; color: var(--red); font-weight: bold;">
+        ⚠️ Quedará registrado como PENDIENTE (POR COBRAR)
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Nombre o Apodo del Cliente *:</span>
+        <input type="text" id="deudor-nom" class="input-txt" placeholder="Ej: Carlos / El Primo / Juan">
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Servicio (Fija monto rápido):</span>
+        <div class="service-chips">
+          <div class="chip-btn selected" id="deud-serv-1" onclick="selectServicioDeudor('Corte')">✂️ Corte</div>
+          <div class="chip-btn" id="deud-serv-2" onclick="selectServicioDeudor('Corte y Barba')">💈 C+B</div>
+          <div class="chip-btn" id="deud-serv-3" onclick="selectServicioDeudor('Solo Barba')">🧔 Barba</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Monto que Debe ($ USD) *:</span>
+        <input type="text" inputmode="decimal" id="deudor-monto" class="input-txt" value="5.00" oninput="updateDeudorBsPreview()">
+        <span style="font-size: 10px; color: var(--gold-light); text-align: right;" id="deudor-bs-preview">Equivalente: Bs. 225.00</span>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Nota o Teléfono (Opcional):</span>
+        <input type="text" id="deudor-nota" class="input-txt" placeholder="Ej: Paga el viernes / 0412-1234567">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-deudor')">Cancelar</button>
+        <button class="btn-confirm btn-confirm-red" onclick="confirmarGuardarDeudor()">🔴 Guardar Deuda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: REGISTRAR GASTO -->
+  <div class="modal-backdrop" id="modal-gasto">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--red);">💸</span>
+        <span>Registrar Gasto Diario</span>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Atajos rápidos:</span>
+        <div class="service-chips" style="flex-wrap: wrap;">
+          <div class="chip-btn" onclick="document.getElementById('gasto-concepto').value='Desayuno'">Desayuno</div>
+          <div class="chip-btn" onclick="document.getElementById('gasto-concepto').value='Almuerzo'">Almuerzo</div>
+          <div class="chip-btn" onclick="document.getElementById('gasto-concepto').value='Repuestos/Navajas'">Navajas</div>
+          <div class="chip-btn" onclick="document.getElementById('gasto-concepto').value='Bebida/Agua'">Bebida</div>
+        </div>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">En qué lo gastaste:</span>
+        <input type="text" id="gasto-concepto" class="input-txt" placeholder="Ej: Pago de almuerzo">
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Monto Gastado ($ USD):</span>
+        <input type="text" inputmode="decimal" id="gasto-monto" class="input-txt" placeholder="Ej: 3.50">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-gasto')">Cancelar</button>
+        <button class="btn-confirm btn-confirm-red" onclick="confirmarGuardarGasto()">Guardar Gasto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: GESTIONAR DEUDOR (COBRAR / ABONAR / MODIFICAR) -->
+  <div class="modal-backdrop" id="modal-gestionar-deudor">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">⚖️</span>
+        <span id="gest-deudor-titulo">Gestionar Deuda</span>
+      </div>
+      <div id="gest-deudor-detalles" style="background: #1C1515; border: 1px solid var(--gold-border); border-radius: 8px; padding: 8px; font-size: 11px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+      
+      <!-- Opciones -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+        <!-- Opción 1: Ya Pagó Todo -->
+        <div style="background: #142416; border: 1px solid var(--green); border-radius: 8px; padding: 10px;">
+          <div style="font-size: 12px; font-weight: bold; color: var(--green); margin-bottom: 6px;">🟢 1. Ya Pagó Todo</div>
+          <select id="gest-metodo-pago" class="input-txt" style="width: 100%; margin-bottom: 6px; padding: 6px;">
+            <option value="Dólares Efectivo ($)">💵 Dólares Efectivo ($)</option>
+            <option value="Pago Móvil (Bs.)">📲 Pago Móvil (Bs.)</option>
+            <option value="Bolívares Efectivo (Bs.)">🇻🇪 Bolívares Efectivo (Bs.)</option>
+            <option value="Punto de Venta">💳 Punto de Venta</option>
+            <option value="Zelle / Binance">🌐 Zelle / Binance</option>
+          </select>
+          <button class="btn-confirm" style="width: 100%; background: var(--green); color: #000;" onclick="ejecutarCobroTotal()">Confirmar y Cobrar</button>
+        </div>
+
+        <!-- Opción 2: Abonar Parcial -->
+        <div style="background: #1C190E; border: 1px solid var(--gold); border-radius: 8px; padding: 10px;">
+          <div style="font-size: 12px; font-weight: bold; color: var(--gold); margin-bottom: 6px;">💵 2. Registrar Abono Parcial</div>
+          <input type="text" inputmode="decimal" id="gest-abono-monto" class="input-txt" placeholder="¿Cuánto abonó? Ej: 2.00" style="width: 100%; margin-bottom: 6px; padding: 6px;">
+          <button class="btn-confirm" style="width: 100%;" onclick="ejecutarAbono()">Registrar Abono</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-gestionar-deudor')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: BASE INICIAL -->
+  <div class="modal-backdrop" id="modal-base">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">💵</span>
+        <span>Dinero Base en Mano</span>
+      </div>
+      <span style="font-size: 11px; color: var(--text-muted);">Efectivo inicial en tu caja/bolsillo para dar vuelto hoy:</span>
+      <div class="input-group">
+        <input type="text" inputmode="decimal" id="txt-base-val" class="input-txt" placeholder="Ej: 10.00">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-base')">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarGuardarBase()">Guardar Base</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: CAMBIAR TASA -->
+  <div class="modal-backdrop" id="modal-tasa">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">💱</span>
+        <span>Actualizar Tasa del Dólar</span>
+      </div>
+      <div class="input-group">
+        <span class="input-lbl">Tasa en Bolívares (Bs / 1 USD):</span>
+        <input type="text" inputmode="decimal" id="txt-tasa-rapida" class="input-txt" placeholder="Ej: 45.00">
+      </div>
+      <div style="font-size: 10px; color: var(--gold-light); background: #20180B; padding: 6px; border-radius: 6px; border: 1px solid var(--gold-border);">
+        ⚡ Al actualizar, todas las cuentas por cobrar se recalcularán automáticamente en Bolívares a este nuevo precio.
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-tasa')">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarGuardarTasaRapida()">Guardar Tasa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 7: LIBRO DIARIO -->
+  <div class="modal-backdrop" id="modal-libro">
+    <div class="modal-box" style="max-height: 80vh;">
+      <div class="modal-header">
+        <span style="color: var(--gold);">📅</span>
+        <span>Libro Diario de Días</span>
+      </div>
+      <div id="libro-diario-lista" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Se llena dinámicamente -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn-confirm" onclick="closeModal('modal-libro')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================================
+    // MOTOR DE DATOS LOCALSTORAGE (100% OFFLINE Y PERMANENTE)
+    // ========================================================
+    const DB_KEY = 'diskenfer_barbershop_db';
+
+    // Helper para interpretar montos con coma o punto limpiando caracteres raros
+    function parseMonto(val, fallback = 0) {
+      if (val === null || val === undefined) return fallback;
+      const str = String(val).replace(',', '.').replace(/[^0-9.]/g, '').trim();
+      const num = parseFloat(str);
+      return (!isNaN(num) && num >= 0) ? num : fallback;
+    }
+
+    function formatPrecio(n) {
+      const num = Number(n);
+      if (isNaN(num)) return "0";
+      return (num % 1 === 0) ? num.toFixed(0) : num.toFixed(2);
+    }
+
+    function getDB() {
+      const data = localStorage.getItem(DB_KEY);
+      let db;
+      if (!data) {
+        db = {
+          config: {
+            tasa: 45.0,
+            pin: "1234",
+            precios: { "Corte": 5.0, "Corte y Barba": 8.0, "Solo Barba": 3.0 }
+          },
+          jornada_hoy: {
+            estado: "NO_INICIADA",
+            fecha: new Date().toISOString().split('T')[0],
+            apertura: null,
+            cierre: null,
+            base: 0.0
+          },
+          cortes: [],
+          gastos: [],
+          ingresos_extra: [],
+          historial_jornadas: []
+        };
+        saveDB(db);
+        return db;
+      }
+      try {
+        db = JSON.parse(data);
+      } catch (e) {
+        db = {};
+      }
+      // Garantizar que la estructura de configuración y precios siempre exista con números válidos
+      if (!db.config || typeof db.config !== 'object') db.config = {};
+      if (typeof db.config.tasa !== 'number' || isNaN(db.config.tasa) || db.config.tasa <= 0) {
+        db.config.tasa = 45.0;
+      }
+      if (!db.config.precios || typeof db.config.precios !== 'object') {
+        db.config.precios = { "Corte": 5.0, "Corte y Barba": 8.0, "Solo Barba": 3.0 };
+      } else {
+        const pc = parseFloat(db.config.precios["Corte"]);
+        const pcb = parseFloat(db.config.precios["Corte y Barba"]);
+        const pb = parseFloat(db.config.precios["Solo Barba"]);
+        db.config.precios["Corte"] = (!isNaN(pc) && pc > 0) ? pc : 5.0;
+        db.config.precios["Corte y Barba"] = (!isNaN(pcb) && pcb > 0) ? pcb : 8.0;
+        db.config.precios["Solo Barba"] = (!isNaN(pb) && pb > 0) ? pb : 3.0;
+      }
+      if (!Array.isArray(db.cortes)) db.cortes = [];
+      if (!Array.isArray(db.gastos)) db.gastos = [];
+      if (!Array.isArray(db.ingresos_extra)) db.ingresos_extra = [];
+      if (!Array.isArray(db.historial_jornadas)) db.historial_jornadas = [];
+      if (!db.jornada_hoy) {
+        db.jornada_hoy = {
+          estado: "NO_INICIADA",
+          fecha: new Date().toISOString().split('T')[0],
+          apertura: null,
+          cierre: null,
+          base: 0.0
+        };
+      }
+      return db;
+    }
+
+    // Actualiza dinámicamente los botones de los modales con los precios reales guardados en Ajustes
+    function actualizarEtiquetasServicios() {
+      const db = getDB();
+      const pc = formatPrecio(db.config.precios["Corte"]);
+      const pcb = formatPrecio(db.config.precios["Corte y Barba"]);
+      const pb = formatPrecio(db.config.precios["Solo Barba"]);
+
+      // Actualizar chips de Registrar Corte
+      const btnC1 = document.getElementById('corte-serv-1');
+      if (btnC1) btnC1.innerText = `✂️ Corte ($${pc})`;
+      const btnC2 = document.getElementById('corte-serv-2');
+      if (btnC2) btnC2.innerText = `💈 C+B ($${pcb})`;
+      const btnC3 = document.getElementById('corte-serv-3');
+      if (btnC3) btnC3.innerText = `🧔 Barba ($${pb})`;
+
+      // Actualizar chips de Modal Deudor
+      const btnD1 = document.getElementById('deud-serv-1');
+      if (btnD1) btnD1.innerText = `✂️ Corte ($${pc})`;
+      const btnD2 = document.getElementById('deud-serv-2');
+      if (btnD2) btnD2.innerText = `💈 C+B ($${pcb})`;
+      const btnD3 = document.getElementById('deud-serv-3');
+      if (btnD3) btnD3.innerText = `🧔 Barba ($${pb})`;
+    }
+
+    function saveDB(data) {
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+    }
+
+    // Alerta Acústica con Web Audio API (Sin archivos externos)
+    function playBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(1100, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    function showToast(msg, type = 'gold') {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.className = 'show ' + (type === 'red' ? 'toast-red' : type === 'green' ? 'toast-green' : '');
+      setTimeout(() => {
+        toast.className = '';
+      }, 3000);
+    }
+
+    function getHoyStr() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function getHoraFmt(dateObj = new Date()) {
+      return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ========================================================
+    // CÁLCULOS Y RENDERIZADO DEL DASHBOARD
+    // ========================================================
+    function renderApp() {
+      const db = getDB();
+      const hoy = getHoyStr();
+      const tasa = db.config.tasa || 45.0;
+
+      // Actualizar Tasa Header
+      document.getElementById('top-tasa-display').innerText = `Bs. ${tasa.toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+      // Filtros de Hoy
+      const cortesHoy = db.cortes.filter(c => c.fecha === hoy);
+      const gastosHoy = db.gastos.filter(g => g.fecha === hoy);
+      const totalGastosHoy = gastosHoy.reduce((acc, g) => acc + Number(g.monto), 0);
+      
+      const cobrosHoy = cortesHoy.filter(c => c.estado_pago === 'PAGADO').reduce((acc, c) => acc + Number(c.precio), 0);
+      const baseIni = db.jornada_hoy.fecha === hoy ? Number(db.jornada_hoy.base || 0) : 0;
+      const totalEnMano = baseIni + cobrosHoy - totalGastosHoy;
+
+      // Deudas
+      const deudores = db.cortes.filter(c => c.estado_pago === 'PENDIENTE');
+      const totalDeuda = deudores.reduce((acc, d) => acc + Number(d.precio), 0);
+
+      // Render Tarjeta Maestra
+      document.getElementById('lbl-base-ini').innerText = `$${baseIni.toFixed(2)}`;
+      document.getElementById('lbl-total-mano').innerText = `$${totalEnMano.toFixed(2)}`;
+      document.getElementById('lbl-total-bs').innerText = `Bs. ${(totalEnMano * tasa).toLocaleString('es-VE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+      // Cápsulas
+      document.getElementById('cap-cortes').innerText = `${cortesHoy.length} (+$${cobrosHoy.toFixed(0)})`;
+      document.getElementById('cap-gastos').innerText = `-$${totalGastosHoy.toFixed(2)}`;
+      
+      const capDeudasBox = document.getElementById('cap-deudas-box');
+      if (deudores.length > 0) {
+        capDeudasBox.className = 'capsule capsule-deudas';
+        document.getElementById('cap-deudas').innerText = `$${totalDeuda.toFixed(2)}`;
+      } else {
+        capDeudasBox.className = 'capsule capsule-deudas al-dia';
+        document.getElementById('cap-deudas').innerText = `$0.00`;
+      }
+
+      // Alarma de Deudas
+      const bannerAlarma = document.getElementById('banner-alarma');
+      if (deudores.length > 0) {
+        bannerAlarma.style.display = 'flex';
+        document.getElementById('banner-alarma-title').innerText = `🚨 ALARMA: ${deudores.length} PAGO(S) POR COBRAR ($${totalDeuda.toFixed(2)})`;
+        document.getElementById('banner-alarma-sub').innerText = `Equivalente: Bs. ${(totalDeuda * tasa).toLocaleString('es-VE', {maximumFractionDigits: 1})} • Toca para cobrar`;
+      } else {
+        bannerAlarma.style.display = 'none';
+      }
+
+      // Jornada
+      renderJornadaBar(db);
+
+      // Últimos Cortes
+      renderUltimosCortes(cortesHoy, tasa);
+
+      // Otras vistas
+      renderHistorialCortes(cortesHoy, tasa);
+      renderDeudores(db, tasa);
+      renderFinanzas(db, tasa);
+      renderAjustes(db);
+      actualizarEtiquetasServicios();
+    }
+
+    function renderJornadaBar(db) {
+      const hoy = getHoyStr();
+      const bar = document.getElementById('bar-jornada');
+      const statusTxt = document.getElementById('jornada-status-txt');
+      const subTxt = document.getElementById('jornada-sub-txt');
+      const btnsContainer = document.getElementById('jornada-btns-container');
+
+      if (db.jornada_hoy.fecha !== hoy) {
+        db.jornada_hoy = { estado: "NO_INICIADA", fecha: hoy, apertura: null, cierre: null, base: 0.0 };
+        saveDB(db);
+      }
+
+      const st = db.jornada_hoy.estado;
+      if (st === 'ABIERTA') {
+        bar.className = 'bar-jornada activa';
+        statusTxt.innerText = `🟢 Turno Activo (desde ${db.jornada_hoy.apertura})`;
+        subTxt.innerText = `Cortes hoy: ${db.cortes.filter(c => c.fecha === hoy).length}`;
+        btnsContainer.innerHTML = `
+          <button class="btn-sm btn-sm-red" onclick="cerrarTurno()">🛑 Cerrar</button>
+          <button class="btn-sm btn-sm-outline" onclick="openModalLibro()">📅 Libro</button>
+        `;
+      } else if (st === 'CERRADA') {
+        bar.className = 'bar-jornada cerrada';
+        statusTxt.innerText = `🏁 Turno Cerrado (${db.jornada_hoy.apertura} a ${db.jornada_hoy.cierre})`;
+        subTxt.innerText = `Jornada finalizada con éxito`;
+        btnsContainer.innerHTML = `
+          <button class="btn-sm btn-sm-gold" onclick="reabrirTurno()">🔄 Reabrir</button>
+          <button class="btn-sm btn-sm-outline" onclick="openModalLibro()">📅 Libro</button>
+        `;
+      } else {
+        bar.className = 'bar-jornada';
+        statusTxt.innerText = `Turno: No iniciado`;
+        subTxt.innerText = `Abre tu jornada para contar horas`;
+        btnsContainer.innerHTML = `
+          <button class="btn-sm btn-sm-green" onclick="iniciarTurno()">🟢 Iniciar</button>
+          <button class="btn-sm btn-sm-outline" onclick="openModalLibro()">📅 Libro</button>
+        `;
+      }
+    }
+
+    function renderUltimosCortes(cortesHoy, tasa) {
+      const container = document.getElementById('lista-ultimos-cortes');
+      document.getElementById('lbl-total-cortes-count').innerText = `Total: ${cortesHoy.length} cortes`;
+      container.innerHTML = '';
+
+      if (cortesHoy.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 12px; font-size: 11px; background: #141414; border-radius: 8px; border: 1px solid var(--gold-border);">Aún no has registrado cortes hoy.</div>`;
+        return;
+      }
+
+      const ultimos = cortesHoy.slice(-3).reverse();
+      ultimos.forEach(c => {
+        const esPagado = c.estado_pago === 'PAGADO';
+        container.innerHTML += `
+          <div class="item-row ${esPagado ? '' : 'debe'}">
+            <div class="item-details">
+              <span class="item-name">${c.cliente}</span>
+              <span class="item-sub">${c.servicio} • ${c.hora || ''}</span>
+            </div>
+            <div class="item-right">
+              <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
+              <span class="badge-status ${esPagado ? 'badge-pagado' : 'badge-debe'}">${esPagado ? 'PAGADO' : 'DEBE'}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderHistorialCortes(cortesHoy, tasa) {
+      const container = document.getElementById('historial-cortes-lista');
+      container.innerHTML = '';
+      if (cortesHoy.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">No hay cortes registrados hoy.</div>`;
+        return;
+      }
+
+      cortesHoy.slice().reverse().forEach(c => {
+        const esPagado = c.estado_pago === 'PAGADO';
+        container.innerHTML += `
+          <div class="item-row ${esPagado ? '' : 'debe'}">
+            <div class="item-details">
+              <span class="item-name">${c.cliente}</span>
+              <span class="item-sub">${c.servicio} • ${c.hora || ''} • ${c.metodo_pago}</span>
+            </div>
+            <div class="item-right">
+              <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
+              <span style="font-size: 9px; color: var(--text-muted);">Bs. ${(Number(c.precio) * tasa).toFixed(1)}</span>
+              <span class="badge-status ${esPagado ? 'badge-pagado' : 'badge-debe'}">${esPagado ? 'PAGADO' : 'DEBE'}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    let deudoresTabActual = 'pendientes';
+    function switchDeudoresSubtab(tab) {
+      deudoresTabActual = tab;
+      document.getElementById('subtab-pendientes-btn').className = 'chip-btn ' + (tab === 'pendientes' ? 'selected' : '');
+      document.getElementById('subtab-cobrados-btn').className = 'chip-btn ' + (tab === 'cobrados' ? 'selected' : '');
+      renderApp();
+    }
+
+    function renderDeudores(db, tasa) {
+      const container = document.getElementById('lista-deudores-container');
+      const pendientes = db.cortes.filter(c => c.estado_pago === 'PENDIENTE');
+      const cobrados = db.cortes.filter(c => c.estado_pago === 'PAGADO' && c.era_deudor);
+
+      document.getElementById('count-pendientes').innerText = pendientes.length;
+      document.getElementById('count-cobrados').innerText = cobrados.length;
+      container.innerHTML = '';
+
+      if (deudoresTabActual === 'pendientes') {
+        if (pendientes.length === 0) {
+          container.innerHTML = `<div style="text-align: center; color: var(--green); padding: 25px; font-size: 13px; font-weight: bold; background: #122416; border-radius: 10px; border: 1.5px solid var(--green);">¡Al día! No hay pagos por cobrar pendientes.</div>`;
+          return;
+        }
+
+        pendientes.forEach(d => {
+          container.innerHTML += `
+            <div class="item-row debe" style="cursor: pointer;" onclick="abrirGestionDeudor('${d.id}')">
+              <div class="item-details">
+                <span class="item-name">👤 ${d.cliente}</span>
+                <span class="item-sub">✂️ ${d.servicio} • Fecha: ${d.fecha}</span>
+                <span class="item-sub" style="color: var(--gold);">${d.notas || 'Sin notas'}</span>
+              </div>
+              <div class="item-right">
+                <span class="item-price" style="font-size: 16px;">$${Number(d.precio).toFixed(2)}</span>
+                <span style="font-size: 10px; color: var(--gold);">Bs. ${(Number(d.precio) * tasa).toFixed(1)}</span>
+                <button class="btn-sm btn-sm-gold" style="margin-top: 4px;">Gestionar</button>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        if (cobrados.length === 0) {
+          container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">No hay historial de deudas cobradas recientemente.</div>`;
+          return;
+        }
+
+        cobrados.slice().reverse().forEach(d => {
+          container.innerHTML += `
+            <div class="item-row">
+              <div class="item-details">
+                <span class="item-name">${d.cliente}</span>
+                <span class="item-sub">${d.servicio} • Cobrado en: ${d.metodo_pago}</span>
+              </div>
+              <div class="item-right">
+                <span class="item-price" style="color: var(--green);">$${Number(d.precio).toFixed(2)}</span>
+                <span class="badge-status badge-pagado">COBRADO</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    let finanzasTabActual = 'ingresos';
+    function switchFinanzasTab(tab) {
+      finanzasTabActual = tab;
+      document.getElementById('fin-tab-ingresos').className = 'chip-btn ' + (tab === 'ingresos' ? 'selected' : '');
+      document.getElementById('fin-tab-gastos').className = 'chip-btn ' + (tab === 'gastos' ? 'selected' : '');
+      document.getElementById('fin-tab-resumen').className = 'chip-btn ' + (tab === 'resumen' ? 'selected' : '');
+      renderApp();
+    }
+
+    function renderFinanzas(db, tasa) {
+      const container = document.getElementById('finanzas-contenido');
+      const hoy = getHoyStr();
+      container.innerHTML = '';
+
+      if (finanzasTabActual === 'ingresos') {
+        const ingresos = db.cortes.filter(c => c.fecha === hoy && c.estado_pago === 'PAGADO');
+        container.innerHTML = `
+          <div style="font-size: 12px; font-weight: bold; color: var(--gold-light);">Total Entradas Hoy: $${ingresos.reduce((a,b)=>a+Number(b.precio),0).toFixed(2)}</div>
+        `;
+        ingresos.forEach(ing => {
+          container.innerHTML += `
+            <div class="item-row">
+              <div class="item-details">
+                <span class="item-name">${ing.cliente} (${ing.servicio})</span>
+                <span class="item-sub">${ing.hora || ''} • ${ing.metodo_pago}</span>
+              </div>
+              <div class="item-right">
+                <span class="item-price" style="color: var(--green);">+$${Number(ing.precio).toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        });
+      } else if (finanzasTabActual === 'gastos') {
+        const gastos = db.gastos.filter(g => g.fecha === hoy);
+        container.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; font-weight: bold; color: var(--red);">Total Salidas Hoy: -$${gastos.reduce((a,b)=>a+Number(b.monto),0).toFixed(2)}</span>
+            <button class="btn-sm btn-sm-red" onclick="openModalGasto()">+ Registrar Gasto</button>
+          </div>
+        `;
+        gastos.forEach((g, idx) => {
+          container.innerHTML += `
+            <div class="item-row debe">
+              <div class="item-details">
+                <span class="item-name">${g.concepto}</span>
+                <span class="item-sub">${g.hora || ''}</span>
+              </div>
+              <div class="item-right">
+                <span class="item-price" style="color: var(--red);">-$${Number(g.monto).toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        const cobrosHoy = db.cortes.filter(c => c.fecha === hoy && c.estado_pago === 'PAGADO').reduce((a,b)=>a+Number(b.precio),0);
+        const gastosHoy = db.gastos.filter(g => g.fecha === hoy).reduce((a,b)=>a+Number(b.monto),0);
+        const gananciaLimpia = cobrosHoy - gastosHoy;
+
+        container.innerHTML = `
+          <div class="card card-master">
+            <span style="font-size: 13px; font-weight: bold; color: var(--gold);">BALANCE FINAL DE HOY</span>
+            <div class="divider"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span>Plata Cobrada (Cortes):</span>
+              <span style="color: var(--green); font-weight: bold;">+$${cobrosHoy.toFixed(2)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span>Gastos del Día:</span>
+              <span style="color: var(--red); font-weight: bold;">-$${gastosHoy.toFixed(2)}</span>
+            </div>
+            <div class="divider"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
+              <span>Ganancia Limpia:</span>
+              <span style="color: ${gananciaLimpia >= 0 ? 'var(--green)' : 'var(--red)'};">
+                ${gananciaLimpia >= 0 ? '+' : ''}$${gananciaLimpia.toFixed(2)}
+              </span>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: var(--gold);">
+              Bs. ${(gananciaLimpia * tasa).toLocaleString('es-VE', {minimumFractionDigits: 2})}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderAjustes(db) {
+      const pc = (db.config.precios && db.config.precios['Corte'] !== undefined) ? db.config.precios['Corte'] : 5.0;
+      const pcb = (db.config.precios && db.config.precios['Corte y Barba'] !== undefined) ? db.config.precios['Corte y Barba'] : 8.0;
+      const pb = (db.config.precios && db.config.precios['Solo Barba'] !== undefined) ? db.config.precios['Solo Barba'] : 3.0;
+
+      document.getElementById('txt-cfg-tasa').value = formatPrecio(db.config.tasa || 45.0);
+      document.getElementById('txt-cfg-p-corte').value = formatPrecio(pc);
+      document.getElementById('txt-cfg-p-cb').value = formatPrecio(pcb);
+      document.getElementById('txt-cfg-p-barba').value = formatPrecio(pb);
+    }
+
+    // ========================================================
+    // ACCIONES Y MODALES
+    // ========================================================
+    function switchTab(index) {
+      const views = ['view-inicio', 'view-cortes', 'view-cobrar', 'view-finanzas', 'view-ajustes'];
+      views.forEach((v, idx) => {
+        document.getElementById(v).style.display = (idx === index) ? 'flex' : 'none';
+      });
+
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach((n, idx) => {
+        n.className = 'nav-item ' + (idx === index ? 'active' : '');
+      });
+
+      window.scrollTo(0, 0);
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Modal Corte
+    let selectedServicioCorte = 'Corte';
+    let selectedEstadoPagoCorte = 'PAGADO';
+
+    function openModalCorte() {
+      actualizarEtiquetasServicios();
+      document.getElementById('corte-cliente').value = '';
+      selectServicioCorte('Corte');
+      setEstadoPagoCorte('PAGADO');
+      openModal('modal-corte');
+    }
+
+    function selectServicioCorte(serv) {
+      selectedServicioCorte = serv;
+      const db = getDB();
+      document.getElementById('corte-serv-1').className = 'chip-btn ' + (serv === 'Corte' ? 'selected' : '');
+      document.getElementById('corte-serv-2').className = 'chip-btn ' + (serv === 'Corte y Barba' ? 'selected' : '');
+      document.getElementById('corte-serv-3').className = 'chip-btn ' + (serv === 'Solo Barba' ? 'selected' : '');
+      const precio = (db.config.precios && db.config.precios[serv] !== undefined) ? Number(db.config.precios[serv]) : 5.0;
+      document.getElementById('corte-monto').value = precio.toFixed(2);
+    }
+
+    function setEstadoPagoCorte(st) {
+      selectedEstadoPagoCorte = st;
+      document.getElementById('corte-pago-pagado').className = 'chip-btn ' + (st === 'PAGADO' ? 'selected' : '');
+      document.getElementById('corte-pago-debe').className = 'chip-btn ' + (st === 'PENDIENTE' ? 'selected' : '');
+      document.getElementById('corte-metodo-box').style.display = (st === 'PAGADO') ? 'flex' : 'none';
+    }
+
+    function confirmarGuardarCorte() {
+      const clienteInput = document.getElementById('corte-cliente').value.trim();
+      const cliente = clienteInput || 'Cliente Casual';
+      const monto = parseMonto(document.getElementById('corte-monto').value, 5.0);
+      const metodo = selectedEstadoPagoCorte === 'PAGADO' ? document.getElementById('corte-metodo').value : 'POR COBRAR';
+
+      const db = getDB();
+      const nuevo = {
+        id: 'c_' + Date.now(),
+        cliente: cliente,
+        servicio: selectedServicioCorte,
+        precio: monto,
+        estado_pago: selectedEstadoPagoCorte,
+        metodo_pago: metodo,
+        fecha: getHoyStr(),
+        hora: getHoraFmt(),
+        notas: ''
+      };
+
+      db.cortes.push(nuevo);
+      saveDB(db);
+      closeModal('modal-corte');
+
+      if (selectedEstadoPagoCorte === 'PENDIENTE') {
+        playBeep();
+        showToast(`🚨 ¡DEUDA REGISTRADA! ${cliente} debe $${monto.toFixed(2)}`, 'red');
+      } else {
+        showToast(`🟢 ${selectedServicioCorte} registrado ($${monto.toFixed(2)})`, 'green');
+      }
+      renderApp();
+    }
+
+    // Modal Deudor Directo
+    let selectedServicioDeudor = 'Corte';
+    function openModalDeudor() {
+      actualizarEtiquetasServicios();
+      document.getElementById('deudor-nom').value = '';
+      document.getElementById('deudor-nota').value = '';
+      selectServicioDeudor('Corte');
+      updateDeudorBsPreview();
+      openModal('modal-deudor');
+    }
+
+    function selectServicioDeudor(serv) {
+      selectedServicioDeudor = serv;
+      const db = getDB();
+      document.getElementById('deud-serv-1').className = 'chip-btn ' + (serv === 'Corte' ? 'selected' : '');
+      document.getElementById('deud-serv-2').className = 'chip-btn ' + (serv === 'Corte y Barba' ? 'selected' : '');
+      document.getElementById('deud-serv-3').className = 'chip-btn ' + (serv === 'Solo Barba' ? 'selected' : '');
+      const precio = (db.config.precios && db.config.precios[serv] !== undefined) ? Number(db.config.precios[serv]) : 5.0;
+      document.getElementById('deudor-monto').value = precio.toFixed(2);
+      updateDeudorBsPreview();
+    }
+
+    function updateDeudorBsPreview() {
+      const db = getDB();
+      const tasa = db.config.tasa || 45.0;
+      const val = parseMonto(document.getElementById('deudor-monto').value, 0);
+      document.getElementById('deudor-bs-preview').innerText = `Equivalente: Bs. ${(val * tasa).toFixed(2)}`;
+    }
+
+    function confirmarGuardarDeudor() {
+      const nom = document.getElementById('deudor-nom').value.trim();
+      if (!nom) {
+        showToast('Ingresa el nombre o apodo del cliente', 'red');
+        return;
+      }
+      const monto = parseMonto(document.getElementById('deudor-monto').value, 0);
+      if (monto <= 0) {
+        showToast('Monto inválido', 'red');
+        return;
+      }
+      const nota = document.getElementById('deudor-nota').value.trim();
+
+      const db = getDB();
+      const nuevo = {
+        id: 'd_' + Date.now(),
+        cliente: nom,
+        servicio: selectedServicioDeudor,
+        precio: monto,
+        estado_pago: 'PENDIENTE',
+        metodo_pago: 'POR COBRAR',
+        fecha: getHoyStr(),
+        hora: getHoraFmt(),
+        notas: nota
+      };
+
+      db.cortes.push(nuevo);
+      saveDB(db);
+      closeModal('modal-deudor');
+      playBeep();
+      showToast(`🚨 ¡DEUDOR ANOTADO! ${nom} debe $${monto.toFixed(2)}`, 'red');
+      renderApp();
+    }
+
+    // Modal Gasto
+    function openModalGasto() {
+      document.getElementById('gasto-concepto').value = '';
+      document.getElementById('gasto-monto').value = '';
+      openModal('modal-gasto');
+    }
+
+    function confirmarGuardarGasto() {
+      const conc = document.getElementById('gasto-concepto').value.trim();
+      const monto = parseMonto(document.getElementById('gasto-monto').value, 0);
+      if (!conc) { showToast('Escribe en qué se gastó', 'red'); return; }
+      if (monto <= 0) { showToast('Ingresa un monto válido', 'red'); return; }
+
+      const db = getDB();
+      db.gastos.push({
+        id: 'g_' + Date.now(),
+        concepto: conc,
+        monto: monto,
+        fecha: getHoyStr(),
+        hora: getHoraFmt()
+      });
+      saveDB(db);
+      closeModal('modal-gasto');
+      showToast(`💸 Gasto registrado: -$${monto.toFixed(2)}`, 'red');
+      renderApp();
+    }
+
+    // Gestionar Deudor
+    let deudorSeleccionadoId = null;
+    function abrirGestionDeudor(id) {
+      const db = getDB();
+      const d = db.cortes.find(c => c.id === id);
+      if (!d) return;
+
+      deudorSeleccionadoId = id;
+      document.getElementById('gest-deudor-titulo').innerText = `Deuda: ${d.cliente}`;
+      document.getElementById('gest-deudor-detalles').innerHTML = `
+        <div><b>Servicio:</b> ${d.servicio}</div>
+        <div><b>Monto Adeudado:</b> <span style="color: var(--red); font-weight: bold; font-size: 14px;">$${Number(d.precio).toFixed(2)}</span> (Bs. ${(Number(d.precio) * db.config.tasa).toFixed(1)})</div>
+        <div><b>Fecha:</b> ${d.fecha} (${d.hora || ''})</div>
+        <div><b>Nota:</b> ${d.notas || 'Ninguna'}</div>
+      `;
+      document.getElementById('gest-abono-monto').value = '';
+      openModal('modal-gestionar-deudor');
+    }
+
+    function ejecutarCobroTotal() {
+      const db = getDB();
+      const d = db.cortes.find(c => c.id === deudorSeleccionadoId);
+      if (!d) return;
+
+      const metodo = document.getElementById('gest-metodo-pago').value;
+      d.estado_pago = 'PAGADO';
+      d.metodo_pago = metodo;
+      d.era_deudor = true;
+      d.fecha_cobro = getHoyStr();
+
+      saveDB(db);
+      closeModal('modal-gestionar-deudor');
+      playBeep();
+      showToast(`🟢 ¡Deuda de $${Number(d.precio).toFixed(2)} cobrada con éxito!`, 'green');
+      renderApp();
+    }
+
+    function ejecutarAbono() {
+      const abono = parseMonto(document.getElementById('gest-abono-monto').value, 0);
+      if (abono <= 0) { showToast('Ingresa un monto válido', 'red'); return; }
+
+      const db = getDB();
+      const d = db.cortes.find(c => c.id === deudorSeleccionadoId);
+      if (!d) return;
+
+      if (abono >= Number(d.precio)) {
+        ejecutarCobroTotal();
+        return;
+      }
+
+      d.precio = Number(d.precio) - abono;
+      d.notas = (d.notas ? d.notas + ' | ' : '') + `Abonó $${abono.toFixed(2)} el ${getHoyStr()}`;
+
+      saveDB(db);
+      closeModal('modal-gestionar-deudor');
+      playBeep();
+      showToast(`💵 Abono de $${abono.toFixed(2)} registrado. Quedan debiendo $${d.precio.toFixed(2)}`, 'gold');
+      renderApp();
+    }
+
+    // Base Inicial
+    function openModalBase() {
+      const db = getDB();
+      document.getElementById('txt-base-val').value = db.jornada_hoy.base || '';
+      openModal('modal-base');
+    }
+
+    function confirmarGuardarBase() {
+      const val = parseMonto(document.getElementById('txt-base-val').value, 0);
+      const db = getDB();
+      db.jornada_hoy.base = val;
+      saveDB(db);
+      closeModal('modal-base');
+      showToast(`Base en caja fijada en $${val.toFixed(2)}`, 'gold');
+      renderApp();
+    }
+
+    // Tasa Rápida
+    function openModalTasa() {
+      const db = getDB();
+      document.getElementById('txt-tasa-rapida').value = (db.config.tasa || 45.0).toFixed(2);
+      openModal('modal-tasa');
+    }
+
+    function confirmarGuardarTasaRapida() {
+      const tasa = parseMonto(document.getElementById('txt-tasa-rapida').value, 0);
+      if (tasa <= 0) { showToast('Ingresa una tasa válida mayor a 0', 'red'); return; }
+
+      const db = getDB();
+      db.config.tasa = tasa;
+      saveDB(db);
+      closeModal('modal-tasa');
+      showToast(`💱 Tasa actualizada a Bs. ${tasa.toFixed(2)}`, 'green');
+      renderApp();
+    }
+
+    // Jornada
+    function iniciarTurno() {
+      const db = getDB();
+      db.jornada_hoy.estado = 'ABIERTA';
+      db.jornada_hoy.apertura = getHoraFmt();
+      saveDB(db);
+      showToast('🟢 ¡Jornada abierta! Buen día de trabajo', 'green');
+      renderApp();
+    }
+
+    function cerrarTurno() {
+      if (!confirm('¿Deseas cerrar la jornada de hoy?')) return;
+      const db = getDB();
+      db.jornada_hoy.estado = 'CERRADA';
+      db.jornada_hoy.cierre = getHoraFmt();
+      saveDB(db);
+      showToast('🏁 Jornada cerrada con éxito', 'gold');
+      renderApp();
+    }
+
+    function reabrirTurno() {
+      const db = getDB();
+      db.jornada_hoy.estado = 'ABIERTA';
+      saveDB(db);
+      showToast('🔄 Jornada reabierta', 'gold');
+      renderApp();
+    }
+
+    function openModalLibro() {
+      const db = getDB();
+      const container = document.getElementById('libro-diario-lista');
+      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 11px;">Jornada de Hoy: ${db.jornada_hoy.estado} (${db.jornada_hoy.apertura || '--'} a ${db.jornada_hoy.cierre || '--'})</div>`;
+      openModal('modal-libro');
+    }
+
+    // Guardar Ajustes
+    function guardarAjusteTasa() {
+      const tasa = parseMonto(document.getElementById('txt-cfg-tasa').value, 0);
+      if (tasa <= 0) {
+        showToast('Ingresa una tasa válida mayor a 0', 'red');
+        return;
+      }
+      const db = getDB();
+      db.config.tasa = tasa;
+      saveDB(db);
+      showToast('Tasa guardada correctamente', 'green');
+      renderApp();
+    }
+
+    function guardarAjustePrecios() {
+      const c = parseMonto(document.getElementById('txt-cfg-p-corte').value, 5.0);
+      const cb = parseMonto(document.getElementById('txt-cfg-p-cb').value, 8.0);
+      const b = parseMonto(document.getElementById('txt-cfg-p-barba').value, 3.0);
+      const db = getDB();
+      db.config.precios = { 'Corte': c, 'Corte y Barba': cb, 'Solo Barba': b };
+      saveDB(db);
+      actualizarEtiquetasServicios();
+      renderAjustes(db);
+      showToast(`✅ Precios actualizados: Corte $${formatPrecio(c)} | C+B $${formatPrecio(cb)} | Barba $${formatPrecio(b)}`, 'green');
+      renderApp();
+    }
+
+    // Backup
+    function exportarBackup() {
+      const db = getDB();
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `diskenfer_backup_${getHoyStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup exportado con éxito', 'green');
+    }
+
+    function importarBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.config && imported.cortes) {
+            saveDB(imported);
+            showToast('Datos restaurados correctamente', 'green');
+            renderApp();
+          } else {
+            showToast('Archivo de respaldo no válido', 'red');
+          }
+        } catch (err) {
+          showToast('Error al leer el archivo', 'red');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function bloquearApp() {
+      showToast('Aplicación protegida', 'gold');
+    }
+
+    // Registrar Service Worker para PWA Offline (Sin datos)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          console.log('Diskenfer PWA Offline Ready ✅');
+          reg.update();
+        }).catch(err => {
+          console.log('SW error:', err);
+        });
+      });
+    }
+
+    // Iniciar
+    renderApp();
+  </script>
+</body>
+</html>
