@@ -796,22 +796,36 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--red)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
       </div>
 
-      <!-- Últimos Cortes de Hoy -->
+      <!-- Últimos Clientes Registrados -->
       <div class="section-header">
-        <span class="section-title">ÚLTIMOS CLIENTES DE HOY</span>
-        <span class="section-badge" id="lbl-total-cortes-count">Total: 0</span>
+        <span class="section-title">ÚLTIMOS CLIENTES REGISTRADOS</span>
+        <span class="section-badge" id="lbl-total-cortes-count">Hoy: 0 | Total: 0</span>
       </div>
       <div id="lista-ultimos-cortes" style="display: flex; flex-direction: column; gap: 6px;">
         <!-- Se llena dinámicamente -->
       </div>
     </main>
 
-    <!-- Vista 1: Cortes (Historial) -->
+    <!-- Vista 1: Cortes (Historial Completo) -->
     <main id="view-cortes" class="view-content" style="display: none;">
-      <div class="section-header">
-        <span class="section-title">HISTORIAL DE CORTES DE HOY</span>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="section-title" style="font-size: 14px; color: #FFF;">HISTORIAL DE CORTES</span>
         <button class="btn-sm btn-sm-gold" onclick="openModalCorte()">+ Registrar</button>
       </div>
+
+      <!-- Filtro de cortes: Hoy, Ayer, Todos -->
+      <div class="service-chips" style="margin-top: 4px;">
+        <div class="chip-btn selected" id="cortes-tab-hoy" onclick="switchCortesTab('hoy')">📅 Hoy (<span id="count-cortes-hoy">0</span>)</div>
+        <div class="chip-btn" id="cortes-tab-ayer" onclick="switchCortesTab('ayer')">⏮️ Ayer (<span id="count-cortes-ayer">0</span>)</div>
+        <div class="chip-btn" id="cortes-tab-todos" onclick="switchCortesTab('todos')">📋 Todos (<span id="count-cortes-todos">0</span>)</div>
+      </div>
+
+      <!-- Resumen del filtro seleccionado -->
+      <div id="cortes-filtro-info" style="font-size: 11px; color: var(--gold); background: #141414; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--gold-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <span id="cortes-filtro-lbl">Mostrando cortes de Hoy</span>
+        <span id="cortes-filtro-monto" style="font-weight: bold; font-size: 12px;">$0.00</span>
+      </div>
+
       <div id="historial-cortes-lista" style="display: flex; flex-direction: column; gap: 8px;">
         <!-- Se llena dinámicamente -->
       </div>
@@ -885,13 +899,42 @@
         <button class="btn-confirm" onclick="guardarAjustePrecios()">Guardar Precios</button>
       </div>
 
-      <div class="card">
-        <span style="font-weight: bold; color: var(--gold); font-size: 13px;">💾 Copia de Seguridad (Backup)</span>
-        <span style="font-size: 11px; color: var(--text-muted);">Tus datos se guardan 100% en este teléfono sin necesidad de internet. Puedes descargar una copia de respaldo cuando quieras:</span>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-confirm" style="flex: 1;" onclick="exportarBackup()">📤 Exportar Datos</button>
-          <label class="btn-confirm" style="flex: 1; text-align: center; cursor: pointer; background: #333; color: #FFF;">
-            📥 Restaurar
+      <!-- Respaldo Estilo Cuenta de Juegos con Correo -->
+      <div class="card" style="border: 1.5px solid var(--gold); background: #131109;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-weight: bold; color: var(--gold); font-size: 14px;">☁️ CUENTA Y RESPALDO CON CORREO</span>
+          <span style="font-size: 10px; background: #221B0B; color: var(--gold); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--gold-border);">Estilo Cuenta de Juegos 🎮</span>
+        </div>
+        <span style="font-size: 11px; color: #BBB; line-height: 1.4;">
+          Vincula tu correo para respaldar todos tus cortes, deudas y finanzas. Si cambias de teléfono o perdiste tus datos, <b>recuperas todo al 100% estés donde estés</b> con un solo toque.
+        </span>
+
+        <div class="input-group" style="margin-top: 8px;">
+          <span class="input-lbl">Tu Correo Electrónico:</span>
+          <input type="email" id="txt-cfg-email" class="input-txt" placeholder="ejemplo@gmail.com" onchange="guardarEmailCuenta()">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+          <button class="btn-confirm" onclick="enviarRespaldoPorCorreo()" style="background: linear-gradient(135deg, #D4AF37, #8C6D28); color: #000; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; padding: 12px; border-radius: 8px;">
+            📧 Enviar Respaldo a mi Correo (Enlace de Restauración)
+          </button>
+          
+          <button class="btn-sm" onclick="enviarRespaldoPorWhatsApp()" style="background: #18331E; border: 1.5px solid #2ECC71; color: #2ECC71; font-weight: bold; padding: 10px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            📲 Enviar Enlace de Respaldo por WhatsApp
+          </button>
+
+          <button class="btn-sm" onclick="abrirModalRestaurarCodigo()" style="background: #20190D; border: 1.5px solid var(--gold); color: var(--gold); font-weight: bold; padding: 10px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            🔄 Recuperar Cuenta con mi Correo o Código
+          </button>
+        </div>
+
+        <div class="divider" style="margin: 12px 0 8px 0;"></div>
+
+        <span style="font-size: 11px; color: var(--text-muted);">Respaldos locales de emergencia (Sin internet):</span>
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button class="btn-sm btn-sm-outline" style="flex: 1;" onclick="exportarBackup()">📤 Guardar JSON</button>
+          <label class="btn-sm btn-sm-outline" style="flex: 1; text-align: center; cursor: pointer; color: #FFF;">
+            📥 Cargar JSON
             <input type="file" id="file-restore" style="display: none;" onchange="importarBackup(event)" accept=".json">
           </label>
         </div>
@@ -1137,6 +1180,27 @@
     </div>
   </div>
 
+  <!-- MODAL 8: RESTAURAR CON CÓDIGO O CORREO -->
+  <div class="modal-backdrop" id="modal-restaurar-codigo">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">🔄</span>
+        <span>Recuperar Cuenta y Datos</span>
+        <button class="close-btn" onclick="closeModal('modal-restaurar-codigo')">&times;</button>
+      </div>
+      <p style="font-size: 11px; color: #CCC; margin: 4px 0 8px 0; line-height: 1.4;">
+        Pega aquí el <b>Código de Respaldo</b> o el enlace completo que recibiste en tu correo o por WhatsApp. Se restaurarán al 100% todos tus cortes, clientes y deudores:
+      </p>
+      <div class="input-group">
+        <textarea id="txt-codigo-restaurar" class="input-txt" rows="5" placeholder="Pega aquí el enlace mágico o el código de tu correo..." style="font-size: 11px; font-family: monospace;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-restaurar-codigo')">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarRestauracionCodigo()">🟢 Restaurar Todo</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================================================
     // MOTOR DE DATOS LOCALSTORAGE (100% OFFLINE Y PERMANENTE)
@@ -1272,8 +1336,35 @@
       }, 3000);
     }
 
+    // Fechas Locales 100% exactas (Sin desfases de zona horaria UTC)
     function getHoyStr() {
-      return new Date().toISOString().split('T')[0];
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getAyerStr() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatFechaHumana(fechaStr) {
+      if (!fechaStr) return '--';
+      const hoy = getHoyStr();
+      const ayer = getAyerStr();
+      if (fechaStr === hoy) return 'Hoy';
+      if (fechaStr === ayer) return 'Ayer';
+      const parts = fechaStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}`;
+      }
+      return fechaStr;
     }
 
     function getHoraFmt(dateObj = new Date()) {
@@ -1297,7 +1388,7 @@
       const totalGastosHoy = gastosHoy.reduce((acc, g) => acc + Number(g.monto), 0);
       
       const cobrosHoy = cortesHoy.filter(c => c.estado_pago === 'PAGADO').reduce((acc, c) => acc + Number(c.precio), 0);
-      const baseIni = db.jornada_hoy.fecha === hoy ? Number(db.jornada_hoy.base || 0) : 0;
+      const baseIni = (db.jornada_hoy && db.jornada_hoy.fecha === hoy) ? Number(db.jornada_hoy.base || 0) : 0;
       const totalEnMano = baseIni + cobrosHoy - totalGastosHoy;
 
       // Deudas
@@ -1335,11 +1426,11 @@
       // Jornada
       renderJornadaBar(db);
 
-      // Últimos Cortes
-      renderUltimosCortes(cortesHoy, tasa);
+      // Últimos Cortes (muestra los más recientes para que la app jamás se vea vacía)
+      renderUltimosCortes(db, tasa);
 
       // Otras vistas
-      renderHistorialCortes(cortesHoy, tasa);
+      renderHistorialCortes(db, tasa);
       renderDeudores(db, tasa);
       renderFinanzas(db, tasa);
       renderAjustes(db);
@@ -1353,7 +1444,15 @@
       const subTxt = document.getElementById('jornada-sub-txt');
       const btnsContainer = document.getElementById('jornada-btns-container');
 
-      if (db.jornada_hoy.fecha !== hoy) {
+      // Si cambió de fecha, archivar automáticamente la jornada anterior sin borrar datos
+      if (db.jornada_hoy && db.jornada_hoy.fecha && db.jornada_hoy.fecha !== hoy) {
+        if (db.jornada_hoy.apertura) {
+          if (!Array.isArray(db.historial_jornadas)) db.historial_jornadas = [];
+          db.historial_jornadas.push({
+            ...db.jornada_hoy,
+            autoCierre: db.jornada_hoy.estado !== 'CERRADA'
+          });
+        }
         db.jornada_hoy = { estado: "NO_INICIADA", fecha: hoy, apertura: null, cierre: null, base: 0.0 };
         saveDB(db);
       }
@@ -1377,7 +1476,7 @@
         `;
       } else {
         bar.className = 'bar-jornada';
-        statusTxt.innerText = `Turno: No iniciado`;
+        statusTxt.innerText = `Turno de Hoy: No iniciado`;
         subTxt.innerText = `Abre tu jornada para contar horas`;
         btnsContainer.innerHTML = `
           <button class="btn-sm btn-sm-green" onclick="iniciarTurno()">🟢 Iniciar</button>
@@ -1386,24 +1485,29 @@
       }
     }
 
-    function renderUltimosCortes(cortesHoy, tasa) {
+    function renderUltimosCortes(db, tasa) {
       const container = document.getElementById('lista-ultimos-cortes');
-      document.getElementById('lbl-total-cortes-count').innerText = `Total: ${cortesHoy.length} cortes`;
+      const hoy = getHoyStr();
+      const cortesHoy = db.cortes.filter(c => c.fecha === hoy);
+      
+      document.getElementById('lbl-total-cortes-count').innerText = `Hoy: ${cortesHoy.length} | Total: ${db.cortes.length}`;
       container.innerHTML = '';
 
-      if (cortesHoy.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 12px; font-size: 11px; background: #141414; border-radius: 8px; border: 1px solid var(--gold-border);">Aún no has registrado cortes hoy.</div>`;
+      if (db.cortes.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 14px; font-size: 11px; background: #141414; border-radius: 8px; border: 1px solid var(--gold-border);">Aún no has registrado ningún corte. Pulsa "+ Registrar" para comenzar.</div>`;
         return;
       }
 
-      const ultimos = cortesHoy.slice(-3).reverse();
+      // Muestra los 4 cortes más recientes en general (para que nunca aparezca en blanco)
+      const ultimos = db.cortes.slice(-4).reverse();
       ultimos.forEach(c => {
         const esPagado = c.estado_pago === 'PAGADO';
+        const fechaHumana = formatFechaHumana(c.fecha);
         container.innerHTML += `
           <div class="item-row ${esPagado ? '' : 'debe'}">
             <div class="item-details">
               <span class="item-name">${c.cliente}</span>
-              <span class="item-sub">${c.servicio} • ${c.hora || ''}</span>
+              <span class="item-sub">${c.servicio} • <b style="color: var(--gold);">${fechaHumana}</b> ${c.hora || ''}</span>
             </div>
             <div class="item-right">
               <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
@@ -1414,21 +1518,69 @@
       });
     }
 
-    function renderHistorialCortes(cortesHoy, tasa) {
+    let cortesTabActual = 'hoy';
+    function switchCortesTab(tab) {
+      cortesTabActual = tab;
+      document.getElementById('cortes-tab-hoy').className = 'chip-btn ' + (tab === 'hoy' ? 'selected' : '');
+      document.getElementById('cortes-tab-ayer').className = 'chip-btn ' + (tab === 'ayer' ? 'selected' : '');
+      document.getElementById('cortes-tab-todos').className = 'chip-btn ' + (tab === 'todos' ? 'selected' : '');
+      renderApp();
+    }
+
+    function renderHistorialCortes(db, tasa) {
       const container = document.getElementById('historial-cortes-lista');
       container.innerHTML = '';
-      if (cortesHoy.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 12px;">No hay cortes registrados hoy.</div>`;
+      const hoy = getHoyStr();
+      const ayer = getAyerStr();
+
+      const cortesHoy = db.cortes.filter(c => c.fecha === hoy);
+      const cortesAyer = db.cortes.filter(c => c.fecha === ayer);
+      const cortesTodos = db.cortes;
+
+      // Actualizar contadores en los chips
+      document.getElementById('count-cortes-hoy').innerText = cortesHoy.length;
+      document.getElementById('count-cortes-ayer').innerText = cortesAyer.length;
+      document.getElementById('count-cortes-todos').innerText = cortesTodos.length;
+
+      let listaMostrar = [];
+      if (cortesTabActual === 'hoy') {
+        listaMostrar = cortesHoy;
+        const totalUSD = cortesHoy.filter(c => c.estado_pago === 'PAGADO').reduce((acc, c) => acc + Number(c.precio), 0);
+        document.getElementById('cortes-filtro-lbl').innerText = `Cortes de Hoy (${cortesHoy.length})`;
+        document.getElementById('cortes-filtro-monto').innerText = `+$${totalUSD.toFixed(2)} USD (Bs. ${(totalUSD * tasa).toLocaleString('es-VE', {maximumFractionDigits: 1})})`;
+      } else if (cortesTabActual === 'ayer') {
+        listaMostrar = cortesAyer;
+        const totalUSD = cortesAyer.filter(c => c.estado_pago === 'PAGADO').reduce((acc, c) => acc + Number(c.precio), 0);
+        document.getElementById('cortes-filtro-lbl').innerText = `Cortes de Ayer (${cortesAyer.length})`;
+        document.getElementById('cortes-filtro-monto').innerText = `+$${totalUSD.toFixed(2)} USD (Bs. ${(totalUSD * tasa).toLocaleString('es-VE', {maximumFractionDigits: 1})})`;
+      } else {
+        listaMostrar = cortesTodos;
+        const totalUSD = cortesTodos.filter(c => c.estado_pago === 'PAGADO').reduce((acc, c) => acc + Number(c.precio), 0);
+        document.getElementById('cortes-filtro-lbl').innerText = `Todos los Cortes Históricos (${cortesTodos.length})`;
+        document.getElementById('cortes-filtro-monto').innerText = `Total: $${totalUSD.toFixed(2)} USD`;
+      }
+
+      if (listaMostrar.length === 0) {
+        const msg = (cortesTabActual === 'hoy')
+          ? 'No hay cortes registrados hoy. Toca "+ Registrar" para comenzar tu día.'
+          : (cortesTabActual === 'ayer')
+          ? 'No hubo cortes registrados el día de ayer.'
+          : 'Aún no tienes cortes en tu historial general.';
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 25px 15px; font-size: 12px; background: #141414; border-radius: 10px; border: 1px solid var(--gold-border);">${msg}</div>`;
         return;
       }
 
-      cortesHoy.slice().reverse().forEach(c => {
+      listaMostrar.slice().reverse().forEach(c => {
         const esPagado = c.estado_pago === 'PAGADO';
+        const fechaHumana = formatFechaHumana(c.fecha);
         container.innerHTML += `
           <div class="item-row ${esPagado ? '' : 'debe'}">
             <div class="item-details">
               <span class="item-name">${c.cliente}</span>
-              <span class="item-sub">${c.servicio} • ${c.hora || ''} • ${c.metodo_pago}</span>
+              <span class="item-sub">
+                ${c.servicio} • <b style="color: var(--gold);">${fechaHumana}</b> ${c.hora || ''} • ${c.metodo_pago}
+              </span>
+              ${c.notas ? `<span class="item-sub" style="color: #AAA;">📝 ${c.notas}</span>` : ''}
             </div>
             <div class="item-right">
               <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
@@ -1464,11 +1616,12 @@
         }
 
         pendientes.forEach(d => {
+          const fechaHumana = formatFechaHumana(d.fecha);
           container.innerHTML += `
             <div class="item-row debe" style="cursor: pointer;" onclick="abrirGestionDeudor('${d.id}')">
               <div class="item-details">
                 <span class="item-name">👤 ${d.cliente}</span>
-                <span class="item-sub">✂️ ${d.servicio} • Fecha: ${d.fecha}</span>
+                <span class="item-sub">✂️ ${d.servicio} • Fecha: <b style="color: var(--gold);">${fechaHumana}</b> (${d.fecha})</span>
                 <span class="item-sub" style="color: var(--gold);">${d.notas || 'Sin notas'}</span>
               </div>
               <div class="item-right">
@@ -1514,73 +1667,180 @@
     function renderFinanzas(db, tasa) {
       const container = document.getElementById('finanzas-contenido');
       const hoy = getHoyStr();
+      const ayer = getAyerStr();
       container.innerHTML = '';
 
       if (finanzasTabActual === 'ingresos') {
-        const ingresos = db.cortes.filter(c => c.fecha === hoy && c.estado_pago === 'PAGADO');
+        const ingresosHoy = db.cortes.filter(c => c.fecha === hoy && c.estado_pago === 'PAGADO');
+        const ingresosTodos = db.cortes.filter(c => c.estado_pago === 'PAGADO');
+        const totalHoy = ingresosHoy.reduce((a, b) => a + Number(b.precio), 0);
+        const totalTodos = ingresosTodos.reduce((a, b) => a + Number(b.precio), 0);
+
         container.innerHTML = `
-          <div style="font-size: 12px; font-weight: bold; color: var(--gold-light);">Total Entradas Hoy: $${ingresos.reduce((a,b)=>a+Number(b.precio),0).toFixed(2)}</div>
-        `;
-        ingresos.forEach(ing => {
-          container.innerHTML += `
-            <div class="item-row">
-              <div class="item-details">
-                <span class="item-name">${ing.cliente} (${ing.servicio})</span>
-                <span class="item-sub">${ing.hora || ''} • ${ing.metodo_pago}</span>
-              </div>
-              <div class="item-right">
-                <span class="item-price" style="color: var(--green);">+$${Number(ing.precio).toFixed(2)}</span>
-              </div>
+          <div style="background: #141414; border: 1px solid var(--gold-border); border-radius: 8px; padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: var(--gold-light); font-weight: bold;">Entradas de Hoy:</span>
+              <div style="font-size: 16px; font-weight: bold; color: var(--green);">+$${totalHoy.toFixed(2)}</div>
             </div>
-          `;
-        });
+            <div style="text-align: right;">
+              <span style="font-size: 10px; color: var(--text-muted);">Total Acumulado:</span>
+              <div style="font-size: 13px; font-weight: bold; color: var(--gold);">$${totalTodos.toFixed(2)}</div>
+            </div>
+          </div>
+        `;
+
+        if (ingresosHoy.length === 0) {
+          container.innerHTML += `<div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 12px; background: #141414; border-radius: 8px;">No hay ingresos cobrados registrados hoy.</div>`;
+        } else {
+          ingresosHoy.slice().reverse().forEach(ing => {
+            container.innerHTML += `
+              <div class="item-row">
+                <div class="item-details">
+                  <span class="item-name">${ing.cliente} (${ing.servicio})</span>
+                  <span class="item-sub">${ing.hora || ''} • ${ing.metodo_pago}</span>
+                </div>
+                <div class="item-right">
+                  <span class="item-price" style="color: var(--green);">+$${Number(ing.precio).toFixed(2)}</span>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        if (ingresosTodos.length > ingresosHoy.length) {
+          container.innerHTML += `<div style="font-size: 11px; font-weight: bold; color: var(--gold); margin: 12px 0 4px 0;">INGRESOS ANTERIORES REGISTRADOS:</div>`;
+          ingresosTodos.filter(c => c.fecha !== hoy).slice(-8).reverse().forEach(ing => {
+            container.innerHTML += `
+              <div class="item-row" style="opacity: 0.85;">
+                <div class="item-details">
+                  <span class="item-name">${ing.cliente} (${ing.servicio})</span>
+                  <span class="item-sub">${formatFechaHumana(ing.fecha)} ${ing.hora || ''} • ${ing.metodo_pago}</span>
+                </div>
+                <div class="item-right">
+                  <span class="item-price" style="color: var(--green); font-size: 13px;">+$${Number(ing.precio).toFixed(2)}</span>
+                </div>
+              </div>
+            `;
+          });
+        }
       } else if (finanzasTabActual === 'gastos') {
-        const gastos = db.gastos.filter(g => g.fecha === hoy);
+        const gastosHoy = db.gastos.filter(g => g.fecha === hoy);
+        const gastosTodos = db.gastos;
+        const totalGastosHoy = gastosHoy.reduce((a, b) => a + Number(b.monto), 0);
+        const totalGastosTodos = gastosTodos.reduce((a, b) => a + Number(b.monto), 0);
+
         container.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 12px; font-weight: bold; color: var(--red);">Total Salidas Hoy: -$${gastos.reduce((a,b)=>a+Number(b.monto),0).toFixed(2)}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div>
+              <span style="font-size: 11px; color: var(--red); font-weight: bold;">Salidas de Hoy: -$${totalGastosHoy.toFixed(2)}</span>
+              <div style="font-size: 9px; color: var(--text-muted);">Total Gastos Históricos: -$${totalGastosTodos.toFixed(2)}</div>
+            </div>
             <button class="btn-sm btn-sm-red" onclick="openModalGasto()">+ Registrar Gasto</button>
           </div>
         `;
-        gastos.forEach((g, idx) => {
-          container.innerHTML += `
-            <div class="item-row debe">
-              <div class="item-details">
-                <span class="item-name">${g.concepto}</span>
-                <span class="item-sub">${g.hora || ''}</span>
+
+        if (gastosHoy.length === 0) {
+          container.innerHTML += `<div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 12px; background: #141414; border-radius: 8px;">No hay gastos registrados hoy.</div>`;
+        } else {
+          gastosHoy.slice().reverse().forEach(g => {
+            container.innerHTML += `
+              <div class="item-row debe">
+                <div class="item-details">
+                  <span class="item-name">${g.concepto}</span>
+                  <span class="item-sub">${g.hora || ''}</span>
+                </div>
+                <div class="item-right">
+                  <span class="item-price" style="color: var(--red);">-$${Number(g.monto).toFixed(2)}</span>
+                </div>
               </div>
-              <div class="item-right">
-                <span class="item-price" style="color: var(--red);">-$${Number(g.monto).toFixed(2)}</span>
+            `;
+          });
+        }
+
+        if (gastosTodos.length > gastosHoy.length) {
+          container.innerHTML += `<div style="font-size: 11px; font-weight: bold; color: var(--gold); margin: 12px 0 4px 0;">GASTOS ANTERIORES:</div>`;
+          gastosTodos.filter(g => g.fecha !== hoy).slice(-8).reverse().forEach(g => {
+            container.innerHTML += `
+              <div class="item-row debe" style="opacity: 0.85;">
+                <div class="item-details">
+                  <span class="item-name">${g.concepto}</span>
+                  <span class="item-sub">${formatFechaHumana(g.fecha)} ${g.hora || ''}</span>
+                </div>
+                <div class="item-right">
+                  <span class="item-price" style="color: var(--red); font-size: 13px;">-$${Number(g.monto).toFixed(2)}</span>
+                </div>
               </div>
-            </div>
-          `;
-        });
+            `;
+          });
+        }
       } else {
+        // Resumen
         const cobrosHoy = db.cortes.filter(c => c.fecha === hoy && c.estado_pago === 'PAGADO').reduce((a,b)=>a+Number(b.precio),0);
         const gastosHoy = db.gastos.filter(g => g.fecha === hoy).reduce((a,b)=>a+Number(b.monto),0);
-        const gananciaLimpia = cobrosHoy - gastosHoy;
+        const gananciaLimpiaHoy = cobrosHoy - gastosHoy;
+
+        const cobrosAyer = db.cortes.filter(c => c.fecha === ayer && c.estado_pago === 'PAGADO').reduce((a,b)=>a+Number(b.precio),0);
+        const gastosAyer = db.gastos.filter(g => g.fecha === ayer).reduce((a,b)=>a+Number(b.monto),0);
+        const gananciaLimpiaAyer = cobrosAyer - gastosAyer;
+
+        const cobrosTotal = db.cortes.filter(c => c.estado_pago === 'PAGADO').reduce((a,b)=>a+Number(b.precio),0);
+        const gastosTotal = db.gastos.reduce((a,b)=>a+Number(b.monto),0);
+        const gananciaTotal = cobrosTotal - gastosTotal;
 
         container.innerHTML = `
           <div class="card card-master">
-            <span style="font-size: 13px; font-weight: bold; color: var(--gold);">BALANCE FINAL DE HOY</span>
+            <span style="font-size: 13px; font-weight: bold; color: var(--gold);">BALANCE DE HOY (${formatFechaHumana(hoy)})</span>
             <div class="divider"></div>
             <div style="display: flex; justify-content: space-between; font-size: 12px;">
-              <span>Plata Cobrada (Cortes):</span>
+              <span>Plata Cobrada (Cortes Hoy):</span>
               <span style="color: var(--green); font-weight: bold;">+$${cobrosHoy.toFixed(2)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 12px;">
-              <span>Gastos del Día:</span>
+              <span>Gastos de Hoy:</span>
               <span style="color: var(--red); font-weight: bold;">-$${gastosHoy.toFixed(2)}</span>
             </div>
             <div class="divider"></div>
             <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
-              <span>Ganancia Limpia:</span>
-              <span style="color: ${gananciaLimpia >= 0 ? 'var(--green)' : 'var(--red)'};">
-                ${gananciaLimpia >= 0 ? '+' : ''}$${gananciaLimpia.toFixed(2)}
+              <span>Ganancia Limpia de Hoy:</span>
+              <span style="color: ${gananciaLimpiaHoy >= 0 ? 'var(--green)' : 'var(--red)'};">
+                ${gananciaLimpiaHoy >= 0 ? '+' : ''}$${gananciaLimpiaHoy.toFixed(2)}
               </span>
             </div>
             <div style="text-align: right; font-size: 11px; color: var(--gold);">
-              Bs. ${(gananciaLimpia * tasa).toLocaleString('es-VE', {minimumFractionDigits: 2})}
+              Bs. ${(gananciaLimpiaHoy * tasa).toLocaleString('es-VE', {minimumFractionDigits: 2})}
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 6px; padding: 10px;">
+            <span style="font-size: 12px; font-weight: bold; color: #FFF;">BALANCE DE AYER (${formatFechaHumana(ayer)})</span>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px;">
+              <span>Cobrado: <b style="color: var(--green);">+$${cobrosAyer.toFixed(2)}</b></span>
+              <span>Gastos: <b style="color: var(--red);">-$${gastosAyer.toFixed(2)}</b></span>
+              <span>Ganancia: <b style="color: var(--gold);">$${gananciaLimpiaAyer.toFixed(2)}</b></span>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 6px; border: 1.5px solid var(--gold); background: #16130B; padding: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13px; font-weight: bold; color: var(--gold);">🏆 ACUMULADO HISTÓRICO TOTAL</span>
+              <span style="font-size: 10px; background: #2A200B; color: var(--gold); padding: 2px 6px; border-radius: 4px;">Todos los tiempos</span>
+            </div>
+            <div class="divider"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span>Total Ganado en Cortes:</span>
+              <span style="color: var(--green); font-weight: bold;">+$${cobrosTotal.toFixed(2)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span>Total Histórico Gastos:</span>
+              <span style="color: var(--red); font-weight: bold;">-$${gastosTotal.toFixed(2)}</span>
+            </div>
+            <div class="divider"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
+              <span>Ganancia Total Neta:</span>
+              <span style="color: var(--gold); font-size: 16px;">+$${gananciaTotal.toFixed(2)} USD</span>
+            </div>
+            <div style="text-align: right; font-size: 11px; color: var(--gold-light);">
+              Equivalente: Bs. ${(gananciaTotal * tasa).toLocaleString('es-VE', {minimumFractionDigits: 2})}
             </div>
           </div>
         `;
@@ -1596,6 +1856,11 @@
       document.getElementById('txt-cfg-p-corte').value = formatPrecio(pc);
       document.getElementById('txt-cfg-p-cb').value = formatPrecio(pcb);
       document.getElementById('txt-cfg-p-barba').value = formatPrecio(pb);
+
+      const emailInput = document.getElementById('txt-cfg-email');
+      if (emailInput) {
+        emailInput.value = db.config.email_cuenta || '';
+      }
     }
 
     // ========================================================
@@ -1896,7 +2161,46 @@
     function openModalLibro() {
       const db = getDB();
       const container = document.getElementById('libro-diario-lista');
-      container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 11px;">Jornada de Hoy: ${db.jornada_hoy.estado} (${db.jornada_hoy.apertura || '--'} a ${db.jornada_hoy.cierre || '--'})</div>`;
+      container.innerHTML = '';
+      
+      const hoy = getHoyStr();
+      const cortesHoy = db.cortes.filter(c => c.fecha === hoy);
+      const cobrosHoy = cortesHoy.filter(c => c.estado_pago === 'PAGADO').reduce((a, b) => a + Number(b.precio), 0);
+
+      container.innerHTML += `
+        <div style="background: #1B1812; border: 1.5px solid var(--gold); border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--gold); font-size: 12px;">
+            <span>📅 Turno de Hoy (${formatFechaHumana(hoy)})</span>
+            <span class="badge-status ${db.jornada_hoy.estado === 'ABIERTA' ? 'badge-pagado' : ''}">${db.jornada_hoy.estado}</span>
+          </div>
+          <div style="font-size: 11px; color: #CCC; margin-top: 4px;">
+            Horario: ${db.jornada_hoy.apertura || '--'} a ${db.jornada_hoy.cierre || '--'}<br>
+            Base en caja: $${Number(db.jornada_hoy.base || 0).toFixed(2)} | Cortes: ${cortesHoy.length} ($${cobrosHoy.toFixed(2)})
+          </div>
+        </div>
+      `;
+
+      if (db.historial_jornadas && db.historial_jornadas.length > 0) {
+        container.innerHTML += `<div style="font-size: 11px; font-weight: bold; color: #FFF; margin: 6px 0;">HISTORIAL DE DÍAS ANTERIORES:</div>`;
+        db.historial_jornadas.slice().reverse().forEach(j => {
+          const cortesDia = db.cortes.filter(c => c.fecha === j.fecha);
+          const cobrosDia = cortesDia.filter(c => c.estado_pago === 'PAGADO').reduce((a, b) => a + Number(b.precio), 0);
+          container.innerHTML += `
+            <div class="item-row" style="padding: 8px; font-size: 11px;">
+              <div class="item-details">
+                <span class="item-name" style="font-size: 12px; color: var(--gold);">📅 ${formatFechaHumana(j.fecha)} (${j.fecha})</span>
+                <span class="item-sub">Horario: ${j.apertura || '--'} - ${j.cierre || '--'}</span>
+                <span class="item-sub">${cortesDia.length} cortes registrados • Base: $${Number(j.base || 0).toFixed(2)}</span>
+              </div>
+              <div class="item-right">
+                <span class="item-price" style="font-size: 13px; color: var(--green);">+$${cobrosDia.toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        container.innerHTML += `<div style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px;">Aún no hay días archivados en el libro diario.</div>`;
+      }
       openModal('modal-libro');
     }
 
@@ -2036,7 +2340,234 @@
       });
     }
 
-    // Iniciar
+    // ========================================================
+    // SISTEMA DE CUENTA Y RESPALDO CON CORREO (ESTILO JUEGO)
+    // ========================================================
+    async function comprimirTokenRespaldo(str) {
+      try {
+        if (typeof CompressionStream !== 'undefined') {
+          const stream = new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'));
+          const buffer = await new Response(stream).arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          let binary = '';
+          for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return 'gz_' + btoa(binary);
+        }
+      } catch (e) {
+        console.warn('Fallback a Base64:', e);
+      }
+      return 'b64_' + btoa(unescape(encodeURIComponent(str)));
+    }
+
+    async function descomprimirTokenRespaldo(token) {
+      if (!token) throw new Error('Token vacío');
+      const cleanToken = token.trim();
+      if (cleanToken.startsWith('gz_')) {
+        const b64 = cleanToken.slice(3);
+        const binary = atob(b64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+        return await new Response(stream).text();
+      } else if (cleanToken.startsWith('b64_')) {
+        return decodeURIComponent(escape(atob(cleanToken.slice(4))));
+      } else {
+        try {
+          return decodeURIComponent(escape(atob(cleanToken)));
+        } catch (e) {
+          return cleanToken;
+        }
+      }
+    }
+
+    function guardarEmailCuenta() {
+      const email = document.getElementById('txt-cfg-email').value.trim();
+      const db = getDB();
+      db.config.email_cuenta = email;
+      saveDB(db);
+    }
+
+    async function generarTokenYUrlRespaldo() {
+      const db = getDB();
+      const jsonStr = JSON.stringify(db);
+      const token = await comprimirTokenRespaldo(jsonStr);
+      const baseUrl = window.location.href.split('#')[0].split('?')[0];
+      const urlRestaurar = `${baseUrl}#recuperar=${token}`;
+      return { db, token, urlRestaurar };
+    }
+
+    async function enviarRespaldoPorCorreo() {
+      const db = getDB();
+      let email = (document.getElementById('txt-cfg-email') ? document.getElementById('txt-cfg-email').value.trim() : '') || db.config.email_cuenta || '';
+      if (!email) {
+        email = prompt('Por favor, ingresa tu correo electrónico para recibir el respaldo:');
+        if (!email) return;
+        const emailInput = document.getElementById('txt-cfg-email');
+        if (emailInput) emailInput.value = email;
+        db.config.email_cuenta = email;
+        saveDB(db);
+      }
+
+      showToast('⏳ Preparando tu respaldo en la nube...', 'gold');
+      const { token, urlRestaurar } = await generarTokenYUrlRespaldo();
+
+      const hoy = getHoyStr();
+      const hora = getHoraFmt();
+      const deudores = db.cortes.filter(c => c.estado_pago === 'PENDIENTE');
+      const totalDeuda = deudores.reduce((acc, d) => acc + Number(d.precio), 0);
+
+      const asunto = `🎮 Respaldo Diskenfer Barbershop (${hoy} ${hora})`;
+      let cuerpo = `💈 DISKENFER BARBERSHOP - RESPALDO EN LA NUBE (CUENTA)
+`;
+      cuerpo += `==========================================================
+`;
+      cuerpo += `Fecha del Respaldo: ${hoy} a las ${hora}
+`;
+      cuerpo += `Total de Cortes Registrados: ${db.cortes.length} cortes
+`;
+      cuerpo += `Total de Deudores Pendientes: ${deudores.length} ($${totalDeuda.toFixed(2)})
+`;
+      cuerpo += `Tasa Activa: Bs. ${(db.config.tasa || 45).toFixed(2)}
+`;
+      cuerpo += `==========================================================
+
+`;
+      cuerpo += `🎮 RECUPERACIÓN AUTOMÁTICA (COMO EN UNA CUENTA DE JUEGOS):
+`;
+      cuerpo += `Si cambiaste de teléfono o perdiste tus datos, simplemente TOCA ESTE ENLACE desde tu iPhone o computadora para restaurar TODO al instante:
+
+`;
+      cuerpo += `👉 ${urlRestaurar}
+
+`;
+      cuerpo += `----------------------------------------------------------
+`;
+      cuerpo += `O si prefieres, copia este Código de Respaldo y pégalo en la app (Ajustes -> Recuperar con Correo):
+
+`;
+      cuerpo += `${token}
+
+`;
+      cuerpo += `==========================================================
+`;
+      cuerpo += `Diskenfer Barbershop • Tu negocio protegido 100%
+`;
+
+      try {
+        await navigator.clipboard.writeText(urlRestaurar);
+      } catch (e) {}
+
+      const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+      window.location.href = mailtoUrl;
+
+      showToast('📧 Correo preparado y enlace de recuperación copiado', 'green');
+    }
+
+    async function enviarRespaldoPorWhatsApp() {
+      showToast('⏳ Generando enlace de WhatsApp...', 'gold');
+      const { db, token, urlRestaurar } = await generarTokenYUrlRespaldo();
+      const hoy = getHoyStr();
+      const hora = getHoraFmt();
+      const deudores = db.cortes.filter(c => c.estado_pago === 'PENDIENTE');
+
+      let msg = `💈 *DISKENFER BARBERSHOP - RESPALDO EN LA NUBE* 💈
+`;
+      msg += `📅 *Fecha:* ${hoy} - ${hora}
+`;
+      msg += `✂️ *Total Cortes:* ${db.cortes.length}
+`;
+      msg += `🚨 *Deudores:* ${deudores.length}
+
+`;
+      msg += `🎮 *Toca este enlace en cualquier teléfono para restaurar TODOS tus datos al 100%:* 
+`;
+      msg += `👉 ${urlRestaurar}
+`;
+
+      try {
+        await navigator.clipboard.writeText(urlRestaurar);
+      } catch(e) {}
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast('📲 Enlace generado para WhatsApp y copiado', 'green');
+    }
+
+    function abrirModalRestaurarCodigo() {
+      document.getElementById('txt-codigo-restaurar').value = '';
+      openModal('modal-restaurar-codigo');
+    }
+
+    async function confirmarRestauracionCodigo() {
+      const raw = document.getElementById('txt-codigo-restaurar').value.trim();
+      if (!raw) {
+        showToast('Pega el código o el enlace recibido', 'red');
+        return;
+      }
+
+      let token = raw;
+      if (raw.includes('#recuperar=')) {
+        token = raw.split('#recuperar=')[1].split('&')[0].trim();
+      } else if (raw.includes('recuperar=')) {
+        token = raw.split('recuperar=')[1].split('&')[0].trim();
+      }
+
+      try {
+        showToast('⏳ Descomprimiendo y restaurando datos...', 'gold');
+        const jsonStr = await descomprimirTokenRespaldo(token);
+        const data = JSON.parse(jsonStr);
+
+        if (!data || !Array.isArray(data.cortes) || !data.config) {
+          showToast('El código no contiene un respaldo válido de Diskenfer', 'red');
+          return;
+        }
+
+        saveDB(data);
+        closeModal('modal-restaurar-codigo');
+        playBeep();
+        showToast(`🎉 ¡CUENTA RESTAURADA! ${data.cortes.length} cortes recuperados con éxito.`, 'green');
+        renderApp();
+      } catch (err) {
+        console.error('Error restaurando:', err);
+        showToast('Error al restaurar: Código no válido o corrupto', 'red');
+      }
+    }
+
+    // Auto-restaurar si el usuario abre la app desde el enlace mágico del correo
+    async function checkUrlParaRestaurar() {
+      if (window.location.hash && window.location.hash.includes('recuperar=')) {
+        try {
+          const hash = window.location.hash;
+          const token = hash.split('recuperar=')[1].split('&')[0].trim();
+          if (token) {
+            const jsonStr = await descomprimirTokenRespaldo(token);
+            const data = JSON.parse(jsonStr);
+            if (data && Array.isArray(data.cortes) && data.config) {
+              saveDB(data);
+              if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+              }
+              setTimeout(() => {
+                playBeep();
+                showToast(`🎉 ¡CUENTA RESTAURADA! ${data.cortes.length} cortes recuperados de tu correo.`, 'green');
+                renderApp();
+              }, 400);
+              return true;
+            }
+          }
+        } catch (e) {
+          console.error('Error en checkUrlParaRestaurar:', e);
+          showToast('Enlace de recuperación inválido o expirado', 'red');
+        }
+      }
+      return false;
+    }
+
+    // Iniciar y verificar si viene de un enlace de recuperación
+    checkUrlParaRestaurar();
     renderApp();
   </script>
 </body>
