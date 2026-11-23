@@ -1,4 +1,4 @@
-const CACHE_NAME = 'diskenfer-barbershop-v6';
+const CACHE_NAME = 'diskenfer-barbershop-v7';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

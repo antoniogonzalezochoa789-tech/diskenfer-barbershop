@@ -1117,6 +1117,11 @@
           <input type="text" inputmode="decimal" id="gest-abono-monto" class="input-txt" placeholder="¿Cuánto abonó? Ej: 2.00" style="width: 100%; margin-bottom: 6px; padding: 6px;">
           <button class="btn-confirm" style="width: 100%;" onclick="ejecutarAbono()">Registrar Abono</button>
         </div>
+
+        <!-- Opción 3: Modificar o Eliminar (Registrado por error) -->
+        <button class="btn-sm btn-sm-outline" style="border-color: #555; color: #DDD; padding: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="closeModal('modal-gestionar-deudor'); abrirEditarCorte(deudorSeleccionadoId)">
+          ✏️ Modificar o Eliminar este Deudor
+        </button>
       </div>
 
       <div class="modal-actions">
@@ -1197,6 +1202,77 @@
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal('modal-restaurar-codigo')">Cancelar</button>
         <button class="btn-confirm" onclick="confirmarRestauracionCodigo()">🟢 Restaurar Todo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 9: EDITAR O ELIMINAR CORTE -->
+  <div class="modal-backdrop" id="modal-editar-corte">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span style="color: var(--gold);">✏️</span>
+        <span id="modal-editar-corte-titulo">Modificar o Borrar Corte</span>
+        <button class="close-btn" onclick="closeModal('modal-editar-corte')">&times;</button>
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Nombre / Apodo del Cliente:</span>
+        <input type="text" id="edit-corte-cliente" class="input-txt" placeholder="Nombre del cliente">
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Servicio Realizado:</span>
+        <div class="service-chips">
+          <div class="chip-btn selected" id="edit-serv-1" onclick="selectServicioEdit('Corte')">✂️ Corte</div>
+          <div class="chip-btn" id="edit-serv-2" onclick="selectServicioEdit('Corte y Barba')">💈 C+B</div>
+          <div class="chip-btn" id="edit-serv-3" onclick="selectServicioEdit('Solo Barba')">🧔 Barba</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Monto Cobrado ($ USD):</span>
+        <input type="text" inputmode="decimal" id="edit-corte-precio" class="input-txt" placeholder="5.00" oninput="updateEditBsPreview()">
+        <div id="edit-corte-bs-preview" style="font-size: 10px; color: var(--gold-light); margin-top: 2px;">Equivalente: Bs. 0.00</div>
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Estado de Pago:</span>
+        <div class="service-chips">
+          <div class="chip-btn selected" id="edit-estado-pagado" onclick="selectEstadoPagoEdit('PAGADO')">🟢 Pagado</div>
+          <div class="chip-btn" id="edit-estado-pendiente" onclick="selectEstadoPagoEdit('PENDIENTE')">🚨 Por Cobrar (Debe)</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Método de Pago:</span>
+        <select id="edit-corte-metodo" class="input-txt">
+          <option value="Dólares Efectivo ($)">💵 Dólares Efectivo ($)</option>
+          <option value="Pago Móvil (Bs.)">📲 Pago Móvil (Bs.)</option>
+          <option value="Bolívares Efectivo (Bs.)">🇻🇪 Bolívares Efectivo (Bs.)</option>
+          <option value="Punto de Venta">💳 Punto de Venta</option>
+          <option value="Zelle / Binance">🌐 Zelle / Binance</option>
+          <option value="POR COBRAR">🚨 Por Cobrar</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Fecha del Corte:</span>
+        <input type="date" id="edit-corte-fecha" class="input-txt">
+      </div>
+
+      <div class="input-group">
+        <span class="input-lbl">Notas / Teléfono (Opcional):</span>
+        <input type="text" id="edit-corte-notas" class="input-txt" placeholder="Notas adicionales">
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+        <button class="btn-confirm" onclick="confirmarGuardarEdicionCorte()" style="background: linear-gradient(135deg, #D4AF37, #8C6D28); color: #000; font-weight: bold; padding: 11px;">
+          💾 Guardar Cambios
+        </button>
+        <button class="btn-sm btn-sm-red" onclick="confirmarEliminarCorte()" style="width: 100%; padding: 9px; font-weight: bold; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          🗑️ Eliminar este Corte
+        </button>
+        <button class="btn-cancel" onclick="closeModal('modal-editar-corte')">Cerrar</button>
       </div>
     </div>
   </div>
@@ -1504,7 +1580,7 @@
         const esPagado = c.estado_pago === 'PAGADO';
         const fechaHumana = formatFechaHumana(c.fecha);
         container.innerHTML += `
-          <div class="item-row ${esPagado ? '' : 'debe'}">
+          <div class="item-row ${esPagado ? '' : 'debe'}" style="cursor: pointer;" onclick="abrirEditarCorte('${c.id}')">
             <div class="item-details">
               <span class="item-name">${c.cliente}</span>
               <span class="item-sub">${c.servicio} • <b style="color: var(--gold);">${fechaHumana}</b> ${c.hora || ''}</span>
@@ -1512,6 +1588,7 @@
             <div class="item-right">
               <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
               <span class="badge-status ${esPagado ? 'badge-pagado' : 'badge-debe'}">${esPagado ? 'PAGADO' : 'DEBE'}</span>
+              <span style="font-size: 10px; color: var(--gold); margin-top: 2px;">✏️ Editar</span>
             </div>
           </div>
         `;
@@ -1574,7 +1651,7 @@
         const esPagado = c.estado_pago === 'PAGADO';
         const fechaHumana = formatFechaHumana(c.fecha);
         container.innerHTML += `
-          <div class="item-row ${esPagado ? '' : 'debe'}">
+          <div class="item-row ${esPagado ? '' : 'debe'}" style="cursor: pointer;" onclick="abrirEditarCorte('${c.id}')">
             <div class="item-details">
               <span class="item-name">${c.cliente}</span>
               <span class="item-sub">
@@ -1586,6 +1663,7 @@
               <span class="item-price">$${Number(c.precio).toFixed(2)}</span>
               <span style="font-size: 9px; color: var(--text-muted);">Bs. ${(Number(c.precio) * tasa).toFixed(1)}</span>
               <span class="badge-status ${esPagado ? 'badge-pagado' : 'badge-debe'}">${esPagado ? 'PAGADO' : 'DEBE'}</span>
+              <button class="btn-sm btn-sm-outline" style="padding: 2px 6px; font-size: 10px; margin-top: 3px;" onclick="event.stopPropagation(); abrirEditarCorte('${c.id}')">✏️ Editar</button>
             </div>
           </div>
         `;
@@ -2338,6 +2416,138 @@
           console.log('SW error:', err);
         });
       });
+    }
+
+
+    // ========================================================
+    // MODIFICAR Y ELIMINAR CORTES / CLIENTES REGISTRADOS
+    // ========================================================
+    let corteEnEdicionId = null;
+    let selectedServicioEdit = 'Corte';
+    let selectedEstadoPagoEdit = 'PAGADO';
+
+    function abrirEditarCorte(id) {
+      const db = getDB();
+      const c = db.cortes.find(item => item.id === id);
+      if (!c) return;
+
+      corteEnEdicionId = id;
+      selectedServicioEdit = c.servicio || 'Corte';
+      selectedEstadoPagoEdit = c.estado_pago || 'PAGADO';
+
+      document.getElementById('modal-editar-corte-titulo').innerText = `Editar: ${c.cliente}`;
+      document.getElementById('edit-corte-cliente').value = c.cliente || '';
+      document.getElementById('edit-corte-precio').value = Number(c.precio || 0).toFixed(2);
+      document.getElementById('edit-corte-fecha').value = c.fecha || getHoyStr();
+      document.getElementById('edit-corte-metodo').value = (c.metodo_pago && c.metodo_pago !== 'POR COBRAR') ? c.metodo_pago : 'Dólares Efectivo ($)';
+      document.getElementById('edit-corte-notas').value = c.notas || '';
+
+      // Actualizar chips de precios dinámicos
+      const pc = formatPrecio(db.config.precios["Corte"] || 5);
+      const pcb = formatPrecio(db.config.precios["Corte y Barba"] || 8);
+      const pb = formatPrecio(db.config.precios["Solo Barba"] || 3);
+
+      const btn1 = document.getElementById('edit-serv-1');
+      if (btn1) {
+        btn1.innerText = `✂️ Corte ($${pc})`;
+        btn1.className = 'chip-btn ' + (selectedServicioEdit === 'Corte' ? 'selected' : '');
+      }
+      const btn2 = document.getElementById('edit-serv-2');
+      if (btn2) {
+        btn2.innerText = `💈 C+B ($${pcb})`;
+        btn2.className = 'chip-btn ' + (selectedServicioEdit === 'Corte y Barba' ? 'selected' : '');
+      }
+      const btn3 = document.getElementById('edit-serv-3');
+      if (btn3) {
+        btn3.innerText = `🧔 Barba ($${pb})`;
+        btn3.className = 'chip-btn ' + (selectedServicioEdit === 'Solo Barba' ? 'selected' : '');
+      }
+
+      // Actualizar chips de estado de pago
+      document.getElementById('edit-estado-pagado').className = 'chip-btn ' + (selectedEstadoPagoEdit === 'PAGADO' ? 'selected' : '');
+      document.getElementById('edit-estado-pendiente').className = 'chip-btn ' + (selectedEstadoPagoEdit === 'PENDIENTE' ? 'selected' : '');
+
+      updateEditBsPreview();
+      openModal('modal-editar-corte');
+    }
+
+    function selectServicioEdit(serv) {
+      selectedServicioEdit = serv;
+      const db = getDB();
+      document.getElementById('edit-serv-1').className = 'chip-btn ' + (serv === 'Corte' ? 'selected' : '');
+      document.getElementById('edit-serv-2').className = 'chip-btn ' + (serv === 'Corte y Barba' ? 'selected' : '');
+      document.getElementById('edit-serv-3').className = 'chip-btn ' + (serv === 'Solo Barba' ? 'selected' : '');
+      const precio = (db.config.precios && db.config.precios[serv] !== undefined) ? Number(db.config.precios[serv]) : 5.0;
+      document.getElementById('edit-corte-precio').value = precio.toFixed(2);
+      updateEditBsPreview();
+    }
+
+    function selectEstadoPagoEdit(estado) {
+      selectedEstadoPagoEdit = estado;
+      document.getElementById('edit-estado-pagado').className = 'chip-btn ' + (estado === 'PAGADO' ? 'selected' : '');
+      document.getElementById('edit-estado-pendiente').className = 'chip-btn ' + (estado === 'PENDIENTE' ? 'selected' : '');
+      if (estado === 'PENDIENTE') {
+        document.getElementById('edit-corte-metodo').value = 'POR COBRAR';
+      } else if (document.getElementById('edit-corte-metodo').value === 'POR COBRAR') {
+        document.getElementById('edit-corte-metodo').value = 'Dólares Efectivo ($)';
+      }
+    }
+
+    function updateEditBsPreview() {
+      const db = getDB();
+      const tasa = db.config.tasa || 45.0;
+      const val = parseMonto(document.getElementById('edit-corte-precio').value, 0);
+      document.getElementById('edit-corte-bs-preview').innerText = `Equivalente: Bs. ${(val * tasa).toFixed(2)}`;
+    }
+
+    function confirmarGuardarEdicionCorte() {
+      const db = getDB();
+      const c = db.cortes.find(item => item.id === corteEnEdicionId);
+      if (!c) return;
+
+      const cliente = document.getElementById('edit-corte-cliente').value.trim();
+      if (!cliente) {
+        showToast('El nombre del cliente no puede estar vacío', 'red');
+        return;
+      }
+      const precio = parseMonto(document.getElementById('edit-corte-precio').value, 0);
+      if (precio <= 0) {
+        showToast('Ingresa un monto válido mayor a 0', 'red');
+        return;
+      }
+      const fecha = document.getElementById('edit-corte-fecha').value || c.fecha || getHoyStr();
+      const metodo = document.getElementById('edit-corte-metodo').value;
+      const notas = document.getElementById('edit-corte-notas').value.trim();
+
+      c.cliente = cliente;
+      c.servicio = selectedServicioEdit || c.servicio;
+      c.precio = precio;
+      c.estado_pago = selectedEstadoPagoEdit;
+      c.metodo_pago = (selectedEstadoPagoEdit === 'PENDIENTE') ? 'POR COBRAR' : metodo;
+      c.fecha = fecha;
+      c.notas = notas;
+
+      saveDB(db);
+      closeModal('modal-editar-corte');
+      playBeep();
+      showToast(`✅ Corte de ${cliente} modificado con éxito`, 'green');
+      renderApp();
+    }
+
+    function confirmarEliminarCorte() {
+      const db = getDB();
+      const c = db.cortes.find(item => item.id === corteEnEdicionId);
+      if (!c) return;
+
+      const confirmar = confirm(`¿Estás seguro de que deseas ELIMINAR el corte de "${c.cliente}" por $${Number(c.precio).toFixed(2)}?\n\nEsta acción quitará el corte y actualizará tus totales inmediatamente.`);
+      if (!confirmar) return;
+
+      db.cortes = db.cortes.filter(item => item.id !== corteEnEdicionId);
+      saveDB(db);
+      closeModal('modal-editar-corte');
+      playBeep();
+      showToast(`🗑️ Corte de ${c.cliente} eliminado correctamente`, 'gold');
+      renderApp();
     }
 
     // ========================================================
