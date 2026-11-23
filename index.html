@@ -643,6 +643,31 @@
       border-color: var(--gold-light);
     }
 
+    .freq-chip {
+      flex: 1;
+      padding: 10px 4px;
+      border-radius: 8px;
+      background: #181818;
+      border: 1.5px solid #333;
+      color: #BBB;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .freq-chip.selected {
+      background: linear-gradient(135deg, #2A210D, #1A1408);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+    }
+
     .modal-actions {
       display: flex;
       gap: 8px;
@@ -897,6 +922,60 @@
           <input type="text" inputmode="decimal" id="txt-cfg-p-barba" class="input-txt" placeholder="Ej: 3.00">
         </div>
         <button class="btn-confirm" onclick="guardarAjustePrecios()">Guardar Precios</button>
+      </div>
+
+      <!-- Respaldo Automático Configurable (Diario, Semanal, Mensual) -->
+      <div class="card" style="border: 1.5px solid var(--gold); background: #131109;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-weight: bold; color: var(--gold); font-size: 14px;">🔄 RESPALDO AUTOMÁTICO</span>
+          <span id="badge-estado-respaldo-auto" style="font-size: 10px; background: #102A16; color: #2ECC71; border: 1px solid #2ECC71; padding: 2px 7px; border-radius: 12px; font-weight: bold;">
+            ● ACTIVO
+          </span>
+        </div>
+        <span style="font-size: 11px; color: #BBB; line-height: 1.4; margin-top: 4px;">
+          Tus datos se respaldan solos de forma automática para que nunca pierdas tus cortes ni deudores. Elige la frecuencia con la que deseas que la app guarde copias de seguridad:
+        </span>
+
+        <div style="margin-top: 10px;">
+          <span class="input-lbl" style="font-size: 11px; color: var(--gold); font-weight: bold; margin-bottom: 6px; display: block;">
+            Frecuencia de Respaldo Automático:
+          </span>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" id="btn-freq-diario" class="freq-chip selected" onclick="seleccionarFrecuenciaRespaldo('diario')">
+              <span>☀️ Diario</span>
+              <span style="font-size: 9px; opacity: 0.8; font-weight: normal;">(Recomendado)</span>
+            </button>
+            <button type="button" id="btn-freq-semanal" class="freq-chip" onclick="seleccionarFrecuenciaRespaldo('semanal')">
+              <span>📅 Semanal</span>
+              <span style="font-size: 9px; opacity: 0.8; font-weight: normal;">(Cada 7 días)</span>
+            </button>
+            <button type="button" id="btn-freq-mensual" class="freq-chip" onclick="seleccionarFrecuenciaRespaldo('mensual')">
+              <span>🗓️ Mensual</span>
+              <span style="font-size: 9px; opacity: 0.8; font-weight: normal;">(Cada 30 días)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Estado del último respaldo -->
+        <div id="info-ultimo-respaldo-auto" style="margin-top: 10px; padding: 9px 11px; background: #1A170F; border: 1px solid var(--gold-border); border-radius: 8px; font-size: 11px; color: #EEE; display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #AAA;">Última copia automática:</span>
+            <b id="lbl-fecha-ultimo-respaldo" style="color: var(--gold);">Pendiente por ejecutar</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #888;">
+            <span>Frecuencia activa: <b id="lbl-frecuencia-activa-txt" style="color: #2ECC71;">☀️ Diario</b></span>
+            <span id="lbl-cant-snapshots-info" style="color: #3498DB; font-weight: bold;">0 copias guardadas</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn-sm" onclick="forzarRespaldoAutomatico()" style="flex: 1; background: #20190D; border: 1.5px solid var(--gold); color: var(--gold); font-weight: bold; padding: 10px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            ⚡ Respaldar Ahora
+          </button>
+          <button class="btn-sm" onclick="abrirModalHistorialSnapshots()" style="flex: 1; background: #121E2C; border: 1.5px solid #3498DB; color: #3498DB; font-weight: bold; padding: 10px; border-radius: 8px; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+            📦 Ver Copias (<span id="btn-cant-snapshots-badge">0</span>)
+          </button>
+        </div>
       </div>
 
       <!-- Respaldo Estilo Cuenta de Juegos con Correo -->
@@ -1277,11 +1356,87 @@
     </div>
   </div>
 
+  <!-- MODAL 10: HISTORIAL DE COPIAS DE SEGURIDAD AUTOMÁTICAS -->
+  <div class="modal-backdrop" id="modal-historial-snapshots">
+    <div class="modal-box" style="max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <span style="color: var(--gold);">📦</span>
+        <span>Copias de Respaldo Automático</span>
+        <button class="close-btn" onclick="closeModal('modal-historial-snapshots')">&times;</button>
+      </div>
+
+      <p style="font-size: 11px; color: #BBB; margin: 4px 0 10px 0; line-height: 1.4;">
+        Aquí se guardan las copias automáticas generadas en tu teléfono. Si necesitas volver a un día anterior o restaurar tus datos, puedes hacerlo con un solo toque:
+      </p>
+
+      <div id="lista-snapshots-container" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; max-height: 52vh; padding-right: 2px;">
+        <!-- Se llena con renderListaSnapshots() -->
+      </div>
+
+      <div class="modal-actions" style="margin-top: auto;">
+        <button class="btn-cancel" onclick="closeModal('modal-historial-snapshots')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================================================
-    // MOTOR DE DATOS LOCALSTORAGE (100% OFFLINE Y PERMANENTE)
+    // MOTOR DE DATOS LOCALSTORAGE E INDEXEDDB (100% OFFLINE Y PERMANENTE)
     // ========================================================
     const DB_KEY = 'diskenfer_barbershop_db';
+
+    // Solicitar almacenamiento persistente en iOS Safari PWA
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+      navigator.storage.persist().then(granted => {
+        if (granted) console.log('Almacenamiento persistente garantizado en dispositivo ✅');
+      }).catch(() => {});
+    }
+
+    // Inicializar IndexedDB como espejo de respaldo redundante en segundo plano
+    function initIndexedDB() {
+      if (typeof window === 'undefined' || !window.indexedDB) return;
+      try {
+        const req = indexedDB.open('DiskenferOfflineDB', 1);
+        req.onupgradeneeded = function(e) {
+          const idb = e.target.result;
+          if (!idb.objectStoreNames.contains('respaldos')) {
+            idb.createObjectStore('respaldos', { keyPath: 'clave' });
+          }
+        };
+      } catch (e) {}
+    }
+    initIndexedDB();
+
+    function guardarEnIndexedDB(data) {
+      if (typeof window === 'undefined' || !window.indexedDB) return;
+      try {
+        const req = indexedDB.open('DiskenferOfflineDB', 1);
+        req.onsuccess = function(e) {
+          const idb = e.target.result;
+          if (!idb.objectStoreNames.contains('respaldos')) return;
+          const tx = idb.transaction('respaldos', 'readwrite');
+          tx.objectStore('respaldos').put({ clave: 'db_actual', data: data, actualizado: Date.now() });
+        };
+      } catch (e) {}
+    }
+
+    // Fechas Locales 100% exactas (Sin desfases de zona horaria UTC)
+    function getHoyStr() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getAyerStr() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
 
     // Helper para interpretar montos con coma o punto limpiando caracteres raros
     function parseMonto(val, fallback = 0) {
@@ -1305,11 +1460,14 @@
           config: {
             tasa: 45.0,
             pin: "1234",
-            precios: { "Corte": 5.0, "Corte y Barba": 8.0, "Solo Barba": 3.0 }
+            precios: { "Corte": 5.0, "Corte y Barba": 8.0, "Solo Barba": 3.0 },
+            frecuencia_respaldo: "diario",
+            ultimo_respaldo_auto: null,
+            email_cuenta: ""
           },
           jornada_hoy: {
             estado: "NO_INICIADA",
-            fecha: new Date().toISOString().split('T')[0],
+            fecha: getHoyStr(),
             apertura: null,
             cierre: null,
             base: 0.0
@@ -1317,7 +1475,8 @@
           cortes: [],
           gastos: [],
           ingresos_extra: [],
-          historial_jornadas: []
+          historial_jornadas: [],
+          historial_snapshots: []
         };
         saveDB(db);
         return db;
@@ -1346,10 +1505,12 @@
       if (!Array.isArray(db.gastos)) db.gastos = [];
       if (!Array.isArray(db.ingresos_extra)) db.ingresos_extra = [];
       if (!Array.isArray(db.historial_jornadas)) db.historial_jornadas = [];
+      if (!Array.isArray(db.historial_snapshots)) db.historial_snapshots = [];
+      if (!db.config.frecuencia_respaldo) db.config.frecuencia_respaldo = 'diario';
       if (!db.jornada_hoy) {
         db.jornada_hoy = {
           estado: "NO_INICIADA",
-          fecha: new Date().toISOString().split('T')[0],
+          fecha: getHoyStr(),
           apertura: null,
           cierre: null,
           base: 0.0
@@ -1383,7 +1544,12 @@
     }
 
     function saveDB(data) {
-      localStorage.setItem(DB_KEY, JSON.stringify(data));
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('Error guardando en localStorage:', e);
+      }
+      guardarEnIndexedDB(data);
     }
 
     // Alerta Acústica con Web Audio API (Sin archivos externos)
@@ -1939,6 +2105,7 @@
       if (emailInput) {
         emailInput.value = db.config.email_cuenta || '';
       }
+      actualizarVistaRespaldoAuto();
     }
 
     // ========================================================
@@ -2020,6 +2187,7 @@
         showToast(`🟢 ${selectedServicioCorte} registrado ($${monto.toFixed(2)})`, 'green');
       }
       renderApp();
+      verificarYEjecutarRespaldoAutomatico(false);
     }
 
     // Modal Deudor Directo
@@ -2083,6 +2251,7 @@
       playBeep();
       showToast(`🚨 ¡DEUDOR ANOTADO! ${nom} debe $${monto.toFixed(2)}`, 'red');
       renderApp();
+      verificarYEjecutarRespaldoAutomatico(false);
     }
 
     // Modal Gasto
@@ -2226,6 +2395,7 @@
       saveDB(db);
       showToast('🏁 Jornada cerrada con éxito', 'gold');
       renderApp();
+      verificarYEjecutarRespaldoAutomatico(false);
     }
 
     function reabrirTurno() {
@@ -2532,6 +2702,7 @@
       playBeep();
       showToast(`✅ Corte de ${cliente} modificado con éxito`, 'green');
       renderApp();
+      verificarYEjecutarRespaldoAutomatico(false);
     }
 
     function confirmarEliminarCorte() {
@@ -2548,6 +2719,7 @@
       playBeep();
       showToast(`🗑️ Corte de ${c.cliente} eliminado correctamente`, 'gold');
       renderApp();
+      verificarYEjecutarRespaldoAutomatico(false);
     }
 
     // ========================================================
@@ -2776,9 +2948,317 @@
       return false;
     }
 
+
+    // ========================================================
+    // MOTOR DE RESPALDO AUTOMÁTICO (DIARIO / SEMANAL / MENSUAL)
+    // ========================================================
+    function seleccionarFrecuenciaRespaldo(freq) {
+      if (!['diario', 'semanal', 'mensual'].includes(freq)) return;
+      const db = getDB();
+      db.config.frecuencia_respaldo = freq;
+      saveDB(db);
+      actualizarVistaRespaldoAuto();
+      const nombres = { diario: '☀️ Diario (Recomendado)', semanal: '📅 Semanal', mensual: '🗓️ Mensual' };
+      showToast(`Frecuencia configurada: ${nombres[freq]}`, 'gold');
+    }
+
+    function actualizarVistaRespaldoAuto() {
+      const db = getDB();
+      const freq = db.config.frecuencia_respaldo || 'diario';
+      const ultimo = db.config.ultimo_respaldo_auto || null;
+      const snaps = Array.isArray(db.historial_snapshots) ? db.historial_snapshots : [];
+
+      // Actualizar chips de frecuencia
+      ['diario', 'semanal', 'mensual'].forEach(f => {
+        const btn = document.getElementById(`btn-freq-${f}`);
+        if (btn) {
+          if (f === freq) {
+            btn.classList.add('selected');
+          } else {
+            btn.classList.remove('selected');
+          }
+        }
+      });
+
+      // Texto de frecuencia activa
+      const lblFreq = document.getElementById('lbl-frecuencia-activa-txt');
+      if (lblFreq) {
+        const nombres = { diario: '☀️ Diario (Cada 24h)', semanal: '📅 Semanal (Cada 7 días)', mensual: '🗓️ Mensual (Cada 30 días)' };
+        lblFreq.innerText = nombres[freq] || '☀️ Diario';
+      }
+
+      // Último respaldo
+      const lblFecha = document.getElementById('lbl-fecha-ultimo-respaldo');
+      if (lblFecha) {
+        if (ultimo && ultimo.fecha) {
+          const fTxt = formatearFecha(ultimo.fecha);
+          lblFecha.innerText = `${fTxt} • ${ultimo.hora || ''}`;
+        } else {
+          lblFecha.innerText = 'Pendiente por ejecutar';
+        }
+      }
+
+      // Conteo de copias
+      const lblCant = document.getElementById('lbl-cant-snapshots-info');
+      if (lblCant) {
+        lblCant.innerText = `${snaps.length} copia${snaps.length === 1 ? '' : 's'} guardada${snaps.length === 1 ? '' : 's'}`;
+      }
+      const badgeCant = document.getElementById('btn-cant-snapshots-badge');
+      if (badgeCant) {
+        badgeCant.innerText = snaps.length;
+      }
+    }
+
+    async function verificarYEjecutarRespaldoAutomatico(forzado = false) {
+      try {
+        const db = getDB();
+        const freq = db.config.frecuencia_respaldo || 'diario';
+        const ultimo = db.config.ultimo_respaldo_auto || null;
+        const ahora = Date.now();
+        const hoy = getHoyStr();
+
+        let debeRespaldar = false;
+
+        if (forzado) {
+          debeRespaldar = true;
+        } else if (!ultimo || !ultimo.timestamp) {
+          debeRespaldar = true;
+        } else {
+          const diffMs = ahora - ultimo.timestamp;
+          const diffHoras = diffMs / (1000 * 60 * 60);
+
+          if (freq === 'diario') {
+            if (ultimo.fecha !== hoy || diffHoras >= 20) {
+              debeRespaldar = true;
+            }
+          } else if (freq === 'semanal') {
+            if (diffHoras >= 160) { // ~7 días
+              debeRespaldar = true;
+            }
+          } else if (freq === 'mensual') {
+            if (diffHoras >= 672) { // ~28-30 días
+              debeRespaldar = true;
+            }
+          }
+        }
+
+        if (!debeRespaldar) {
+          return false;
+        }
+
+        // Crear snapshot
+        const jsonStr = JSON.stringify({
+          config: db.config,
+          jornada_hoy: db.jornada_hoy,
+          cortes: db.cortes,
+          gastos: db.gastos,
+          ingresos_extra: db.ingresos_extra,
+          historial_jornadas: db.historial_jornadas
+        });
+        const token = await comprimirTokenRespaldo(jsonStr);
+        const hora = getHoraFmt();
+
+        const deudoresCount = (db.cortes || []).filter(c => c.estado_pago === 'PENDIENTE').length;
+        const totalCobrado = (db.cortes || []).filter(c => c.estado_pago === 'PAGADO').reduce((a, b) => a + Number(b.precio), 0);
+
+        const snapshot = {
+          id: 'snap_' + ahora,
+          timestamp: ahora,
+          fecha: hoy,
+          hora: hora,
+          frecuencia: freq,
+          cortes_count: (db.cortes || []).length,
+          deudores_count: deudoresCount,
+          total_cobrado: totalCobrado,
+          token: token
+        };
+
+        if (!Array.isArray(db.historial_snapshots)) {
+          db.historial_snapshots = [];
+        }
+
+        // Insertar al inicio y conservar máximo 20 copias
+        db.historial_snapshots.unshift(snapshot);
+        if (db.historial_snapshots.length > 20) {
+          db.historial_snapshots = db.historial_snapshots.slice(0, 20);
+        }
+
+        db.config.ultimo_respaldo_auto = {
+          timestamp: ahora,
+          fecha: hoy,
+          hora: hora,
+          frecuencia: freq
+        };
+
+        saveDB(db);
+        actualizarVistaRespaldoAuto();
+
+        if (forzado) {
+          playBeep();
+          showToast(`✅ ¡Respaldo automático (${freq.toUpperCase()}) guardado con éxito!`, 'green');
+        } else {
+          console.log(`[Diskenfer] Respaldo automático (${freq}) guardado silenciosamente a las ${hora}`);
+        }
+        return true;
+      } catch (e) {
+        console.error('Error en verificarYEjecutarRespaldoAutomatico:', e);
+        if (forzado) {
+          showToast('Error al crear copia de respaldo', 'red');
+        }
+        return false;
+      }
+    }
+
+    function forzarRespaldoAutomatico() {
+      showToast('⏳ Creando respaldo automático...', 'gold');
+      setTimeout(() => {
+        verificarYEjecutarRespaldoAutomatico(true);
+      }, 100);
+    }
+
+    function abrirModalHistorialSnapshots() {
+      renderListaSnapshots();
+      openModal('modal-historial-snapshots');
+    }
+
+    function renderListaSnapshots() {
+      const db = getDB();
+      const container = document.getElementById('lista-snapshots-container');
+      if (!container) return;
+
+      const snaps = Array.isArray(db.historial_snapshots) ? db.historial_snapshots : [];
+      if (snaps.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 25px 15px; color: #888;">
+            <span style="font-size: 32px; display: block; margin-bottom: 8px;">📦</span>
+            <span style="font-size: 13px; color: #CCC; font-weight: bold; display: block;">No hay copias automáticas todavía</span>
+            <span style="font-size: 11px; margin-top: 4px; display: block;">Se generarán automáticamente según la frecuencia elegida, o toca "⚡ Respaldar Ahora" para crear la primera.</span>
+          </div>
+        `;
+        return;
+      }
+
+      const freqIcons = { diario: '☀️ Diario', semanal: '📅 Semanal', mensual: '🗓️ Mensual' };
+
+      container.innerHTML = snaps.map(s => {
+        const badgeFreq = freqIcons[s.frecuencia] || '☀️ Diario';
+        const fechaTxt = formatearFecha(s.fecha);
+        return `
+          <div style="background: #171510; border: 1.5px solid var(--gold-border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 12px; font-weight: bold; color: var(--gold);">📅 ${fechaTxt}</span>
+                <span style="font-size: 10px; color: #888;">${s.hora || ''}</span>
+              </div>
+              <span style="font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; background: #262010; color: var(--gold); border: 1px solid var(--gold-border);">
+                ${badgeFreq}
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 10px; font-size: 11px; color: #DDD;">
+              <span>✂️ <b>${s.cortes_count || 0}</b> cortes</span>
+              <span>🚨 <b>${s.deudores_count || 0}</b> deudores</span>
+              <span>💰 <b>$${Number(s.total_cobrado || 0).toFixed(2)}</b></span>
+            </div>
+
+            <div style="display: flex; gap: 6px; margin-top: 4px;">
+              <button class="btn-sm" onclick="restaurarSnapshot('${s.id}')" style="flex: 2; background: #1B2E1D; border: 1.5px solid #2ECC71; color: #2ECC71; font-weight: bold; padding: 7px; font-size: 11px; border-radius: 6px;">
+                🔄 Restaurar Esta Copia
+              </button>
+              <button class="btn-sm" onclick="compartirSnapshot('${s.id}')" style="flex: 1; background: #20190D; border: 1.5px solid var(--gold); color: var(--gold); font-weight: bold; padding: 7px; font-size: 11px; border-radius: 6px;">
+                📲 Enlace
+              </button>
+              <button class="btn-sm" onclick="eliminarSnapshot('${s.id}')" style="background: #2C1212; border: 1px solid #E74C3C; color: #E74C3C; padding: 7px 10px; font-size: 11px; border-radius: 6px;">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function restaurarSnapshot(id) {
+      const db = getDB();
+      const snap = (db.historial_snapshots || []).find(s => s.id === id);
+      if (!snap || !snap.token) {
+        showToast('No se encontró la copia seleccionada', 'red');
+        return;
+      }
+      const confirmar = confirm(`¿Deseas restaurar la copia del ${snap.fecha} a las ${snap.hora}?\n\nSe restablecerán ${snap.cortes_count} cortes y ${snap.deudores_count} deudores guardados en ese momento.`);
+      if (!confirmar) return;
+
+      try {
+        showToast('⏳ Restaurando datos de la copia...', 'gold');
+        const jsonStr = await descomprimirTokenRespaldo(snap.token);
+        const data = JSON.parse(jsonStr);
+
+        if (!data || !Array.isArray(data.cortes)) {
+          showToast('Error: Los datos de la copia están corruptos', 'red');
+          return;
+        }
+
+        // Mantener el historial de copias existente
+        data.historial_snapshots = db.historial_snapshots;
+        if (!data.config) data.config = {};
+        data.config.frecuencia_respaldo = db.config.frecuencia_respaldo || 'diario';
+        data.config.ultimo_respaldo_auto = db.config.ultimo_respaldo_auto;
+
+        saveDB(data);
+        closeModal('modal-historial-snapshots');
+        playBeep();
+        showToast(`🎉 ¡Copia del ${snap.fecha} restaurada con éxito!`, 'green');
+        renderApp();
+      } catch (err) {
+        console.error('Error al restaurar snapshot:', err);
+        showToast('Error al restaurar la copia', 'red');
+      }
+    }
+
+    async function compartirSnapshot(id) {
+      const db = getDB();
+      const snap = (db.historial_snapshots || []).find(s => s.id === id);
+      if (!snap || !snap.token) return;
+
+      const baseUrl = window.location.href.split('#')[0].split('?')[0];
+      const urlRestaurar = `${baseUrl}#recuperar=${snap.token}`;
+
+      try {
+        await navigator.clipboard.writeText(urlRestaurar);
+      } catch (e) {}
+
+      let msg = `💈 *DISKENFER BARBERSHOP - COPIA DE SEGURIDAD (${snap.frecuencia.toUpperCase()})* 💈\n`;
+      msg += `📅 *Fecha:* ${snap.fecha} a las ${snap.hora}\n`;
+      msg += `✂️ *Cortes:* ${snap.cortes_count}\n`;
+      msg += `🚨 *Deudores:* ${snap.deudores_count}\n\n`;
+      msg += `🎮 *Toca este enlace en tu teléfono para restaurar esta copia exacta:* \n`;
+      msg += `👉 ${urlRestaurar}\n`;
+
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast('📲 Enlace copiado y preparado para compartir', 'green');
+    }
+
+    function eliminarSnapshot(id) {
+      const db = getDB();
+      const snap = (db.historial_snapshots || []).find(s => s.id === id);
+      if (!snap) return;
+
+      const confirmar = confirm(`¿Eliminar la copia automática del ${snap.fecha} a las ${snap.hora}?`);
+      if (!confirmar) return;
+
+      db.historial_snapshots = db.historial_snapshots.filter(s => s.id !== id);
+      saveDB(db);
+      renderListaSnapshots();
+      actualizarVistaRespaldoAuto();
+      showToast('Copia eliminada', 'gold');
+    }
+
     // Iniciar y verificar si viene de un enlace de recuperación
     checkUrlParaRestaurar();
     renderApp();
+    // Ejecutar verificación de respaldo automático al iniciar
+    setTimeout(() => {
+      verificarYEjecutarRespaldoAutomatico(false);
+    }, 1500);
   </script>
 </body>
 </html>
